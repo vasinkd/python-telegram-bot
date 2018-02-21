@@ -35,6 +35,7 @@ from .typehandler import TypeHandler
 from .conversationhandler import ConversationHandler
 from .precheckoutqueryhandler import PreCheckoutQueryHandler
 from .shippingqueryhandler import ShippingQueryHandler
+from .apihandler import APIHandler
 from .messagequeue import MessageQueue
 from .messagequeue import DelayQueue
 
