@@ -53,6 +53,7 @@ from .payment.orderinfo import OrderInfo
 from .payment.successfulpayment import SuccessfulPayment
 from .payment.invoice import Invoice
 from .message import Message
+from .apirequest import APIRequest
 from .callbackquery import CallbackQuery
 from .choseninlineresult import ChosenInlineResult
 from .inline.inlinekeyboardbutton import InlineKeyboardButton

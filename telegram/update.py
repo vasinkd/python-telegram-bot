@@ -19,7 +19,7 @@
 """This module contains an object that represents a Telegram Update."""
 
 from telegram import (Message, TelegramObject, InlineQuery, ChosenInlineResult,
-                      CallbackQuery, ShippingQuery, PreCheckoutQuery)
+                      CallbackQuery, ShippingQuery, PreCheckoutQuery, APIRequest)
 
 
 class Update(TelegramObject):
@@ -78,6 +78,7 @@ class Update(TelegramObject):
                  callback_query=None,
                  shipping_query=None,
                  pre_checkout_query=None,
+                 api_data=None
                  **kwargs):
         # Required
         self.update_id = int(update_id)
@@ -91,6 +92,7 @@ class Update(TelegramObject):
         self.pre_checkout_query = pre_checkout_query
         self.channel_post = channel_post
         self.edited_channel_post = edited_channel_post
+        self.api_data=api_data
 
         self._effective_user = None
         self._effective_chat = None
@@ -215,5 +217,6 @@ class Update(TelegramObject):
         data['pre_checkout_query'] = PreCheckoutQuery.de_json(data.get('pre_checkout_query'), bot)
         data['channel_post'] = Message.de_json(data.get('channel_post'), bot)
         data['edited_channel_post'] = Message.de_json(data.get('edited_channel_post'), bot)
+        data["api_data"] = APIRequest.de_json(data.get('api_data'), bot)
 
         return cls(**data)
