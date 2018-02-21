@@ -78,7 +78,7 @@ class Update(TelegramObject):
                  callback_query=None,
                  shipping_query=None,
                  pre_checkout_query=None,
-                 api_data=None
+                 api_data=None,
                  **kwargs):
         # Required
         self.update_id = int(update_id)
