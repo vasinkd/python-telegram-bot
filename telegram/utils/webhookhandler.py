@@ -42,12 +42,13 @@ class _InvalidPost(Exception):
 
 class WebhookServer(BaseHTTPServer.HTTPServer, object):
 
-    def __init__(self, server_address, RequestHandlerClass, update_queue, webhook_path, bot):
+    def __init__(self, server_address, RequestHandlerClass, update_queue, webhook_path, bot, api_key=None):
         super(WebhookServer, self).__init__(server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
         self.webhook_path = webhook_path
         self.bot = bot
+        self.api_key=None
         self.is_running = False
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
@@ -104,6 +105,9 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             buf = self.rfile.read(clen)
             json_string = bytes_to_native_str(buf)
 
+            if self.path == "api":
+                self._validate_api(json_string)
+
             self.send_response(200)
             self.end_headers()
 
@@ -115,10 +119,18 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             self.server.update_queue.put(update)
 
     def _validate_post(self):
-        print(self.server.webhook_path)
-        if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
-                self.headers['content-type'] == 'application/json'):
-            raise _InvalidPost(403)
+        if self.path != "api":
+            if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
+                    self.headers['content-type'] == 'application/json'):
+                raise _InvalidPost(403)
+        else:
+            if not ('authorization' in self.headers and ['authorization'] == self.server.api_key):
+                raise _InvalidPost(401)
+
+    def _validate_api(self, json_string):
+        if not ("api_data" in json_string and "user_id" in json_string["api_data"] and
+                "update_id" in json_string):
+            raise _InvalidPost(400)
 
     def _get_content_len(self):
         clen = self.headers.get('content-length')

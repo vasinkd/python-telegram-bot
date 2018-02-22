@@ -26,7 +26,6 @@ from .handler import Handler
 class APIHandler(Handler):
 
     def __init__(self,
-                 auth_secret,
                  callback,
                  pass_update_queue=False,
                  pass_job_queue=False,
@@ -39,8 +38,6 @@ class APIHandler(Handler):
             pass_user_data=pass_user_data,
             pass_chat_data=pass_chat_data)
 
-        self.auth_secret = auth_secret
-
     def check_update(self, update):
         """Determines whether an update should be passed to this handlers :attr:`callback`.
 
@@ -51,12 +48,7 @@ class APIHandler(Handler):
             :obj:`bool`
 
         """
-        if isinstance(update, Update) and update.api_data:
-            if self.auth_secret:
-                if update.api_data.auth:
-                    return self.auth_secret == update.api_data.auth
-            else:
-                return True
+        return isinstance(update, Update) and update.api_data
 
     def handle_update(self, update, dispatcher):
         """Send the update to the :attr:`callback`.

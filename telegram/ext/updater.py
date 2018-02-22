@@ -219,7 +219,8 @@ class Updater(object):
                       clean=False,
                       bootstrap_retries=0,
                       webhook_url=None,
-                      allowed_updates=None):
+                      allowed_updates=None,
+                      api_key=None):
         """
         Starts a small http server to listen for updates via webhook. If cert
         and key are not provided, the webhook will be started directly on
@@ -260,7 +261,7 @@ class Updater(object):
                 self.job_queue.start()
                 self._init_thread(self.dispatcher.start, "dispatcher"),
                 self._init_thread(self._start_webhook, "updater", listen, port, url_path, cert,
-                                  key, bootstrap_retries, clean, webhook_url, allowed_updates)
+                                  key, bootstrap_retries, clean, webhook_url, allowed_updates, api_key)
 
                 # Return the update queue so the main thread can insert updates
                 return self.update_queue
@@ -327,7 +328,7 @@ class Updater(object):
         return current_interval
 
     def _start_webhook(self, listen, port, url_path, cert, key, bootstrap_retries, clean,
-                       webhook_url, allowed_updates):
+                       webhook_url, allowed_updates, api_key):
         self.logger.debug('Updater thread started')
         use_ssl = cert is not None and key is not None
         if not url_path.startswith('/'):
@@ -335,7 +336,7 @@ class Updater(object):
 
         # Create and start server
         self.httpd = WebhookServer((listen, port), WebhookHandler, self.update_queue, url_path,
-                                   self.bot)
+                                   self.bot, api_key)
 
         if use_ssl:
             self._check_ssl_cert(cert, key)
