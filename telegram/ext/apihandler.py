@@ -32,7 +32,7 @@ class APIHandler(Handler):
                  pass_job_queue=False,
                  pass_user_data=False,
                  pass_chat_data=False):
-        super(CallbackQueryHandler, self).__init__(
+        super(APIHandler, self).__init__(
             callback,
             pass_update_queue=pass_update_queue,
             pass_job_queue=pass_job_queue,
