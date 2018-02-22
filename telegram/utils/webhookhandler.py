@@ -105,7 +105,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             buf = self.rfile.read(clen)
             json_string = bytes_to_native_str(buf)
 
-            if self.path == "api":
+            if self.path == "/api":
                 self._validate_api(json_string)
 
             self.send_response(200)
@@ -119,7 +119,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             self.server.update_queue.put(update)
 
     def _validate_post(self):
-        if self.path != "api":
+        if self.path != "/api":
             if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
                     self.headers['content-type'] == 'application/json'):
                 raise _InvalidPost(403)
