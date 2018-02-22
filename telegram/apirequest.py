@@ -22,10 +22,10 @@ from telegram import TelegramObject
 
 class APIRequest(TelegramObject):
     def __init__(self,
-                 data,
+                 api_data,
                  bot=None,
                  **kwargs):
-        self.data = data
+        self.data = api_data
         self.bot = bot
 
     @classmethod
