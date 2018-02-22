@@ -42,13 +42,13 @@ class _InvalidPost(Exception):
 
 class WebhookServer(BaseHTTPServer.HTTPServer, object):
 
-    def __init__(self, server_address, RequestHandlerClass, update_queue, webhook_path, bot, api_key=None):
+    def __init__(self, server_address, RequestHandlerClass, update_queue, webhook_path, bot, api_key):
         super(WebhookServer, self).__init__(server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
         self.webhook_path = webhook_path
         self.bot = bot
-        self.api_key=None
+        self.api_key=api_key
         self.is_running = False
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
