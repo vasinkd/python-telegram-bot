@@ -106,7 +106,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             json_string = bytes_to_native_str(buf)
 
             if self.path == "/api":
-                self._validate_api(json_string)
+                self._validate_api(json.loads(json_string))
 
             self.send_response(200)
             self.end_headers()
