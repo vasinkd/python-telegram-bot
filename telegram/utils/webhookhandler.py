@@ -132,6 +132,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
     def _validate_api(self, data):
         if not ("api_data" in data and "user_id" in data["api_data"] and
                 "update_id" in data):
+            self.send_error(400)
             raise _InvalidPost(400)
 
     def _get_content_len(self):
