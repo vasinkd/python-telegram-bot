@@ -115,6 +115,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             self.server.update_queue.put(update)
 
     def _validate_post(self):
+        print(self.server.webhook_path)
         if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
                 self.headers['content-type'] == 'application/json'):
             raise _InvalidPost(403)
