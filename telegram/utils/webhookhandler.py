@@ -124,7 +124,8 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
                     self.headers['content-type'] == 'application/json'):
                 raise _InvalidPost(403)
         else:
-            if not ('authorization' in self.headers and ['authorization'] == self.server.api_key):
+            if not ('authorization' in self.headers and
+                    self.headers['authorization'] == self.server.api_key):
                 raise _InvalidPost(401)
 
     def _validate_api(self, json_string):
