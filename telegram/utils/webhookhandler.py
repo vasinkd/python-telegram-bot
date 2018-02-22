@@ -105,15 +105,16 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             buf = self.rfile.read(clen)
             json_string = bytes_to_native_str(buf)
 
+            data = json.loads(json_string)
             if self.path == "/api":
-                self._validate_api(json.loads(json_string))
+                self._validate_api(data)
 
             self.send_response(200)
             self.end_headers()
 
             self.logger.debug('Webhook received data: ' + json_string)
 
-            update = Update.de_json(json.loads(json_string), self.server.bot)
+            update = Update.de_json(data, self.server.bot)
 
             self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
             self.server.update_queue.put(update)
@@ -128,9 +129,9 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
                     self.headers['authorization'] == self.server.api_key):
                 raise _InvalidPost(401)
 
-    def _validate_api(self, json_string):
-        if not ("api_data" in json_string and "user_id" in json_string["api_data"] and
-                "update_id" in json_string):
+    def _validate_api(self, data):
+        if not ("api_data" in data and "user_id" in data["api_data"] and
+                "update_id" in data):
             raise _InvalidPost(400)
 
     def _get_content_len(self):

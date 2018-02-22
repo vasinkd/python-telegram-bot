@@ -217,6 +217,6 @@ class Update(TelegramObject):
         data['pre_checkout_query'] = PreCheckoutQuery.de_json(data.get('pre_checkout_query'), bot)
         data['channel_post'] = Message.de_json(data.get('channel_post'), bot)
         data['edited_channel_post'] = Message.de_json(data.get('edited_channel_post'), bot)
-        data["api_data"] = APIRequest.de_json(data.get('api_data'), bot)
+        data['api_data'] = APIRequest.de_json(data.get('api_data'), bot)
 
         return cls(**data)
