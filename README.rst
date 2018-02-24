@@ -2,8 +2,8 @@
    :align: center
    :target: https://python-telegram-bot.org
    :alt: python-telegram-bot Logo
-
-We have made you a wrapper you can't refuse
+   
+This is a fork of popular telegram API wrapper. Here introduced APIHandler which helps to accept POST requests from remote servers. 
 
 *Stay tuned for library updates and new releases on our* `Telegram Channel <https://telegram.me/pythontelegrambotchannel>`_.
 
