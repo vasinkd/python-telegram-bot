@@ -108,6 +108,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             data = json.loads(json_string)
             if self.path == "/api":
                 self._validate_api(data)
+                data["update_id"] = 1
 
             self.send_response(200)
             self.end_headers()
@@ -130,10 +131,11 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
                 raise _InvalidPost(401)
 
     def _validate_api(self, data):
-        if not ("api_data" in data and "user_id" in data["api_data"] and
-                "update_id" in data):
-            self.send_error(400)
-            raise _InvalidPost(400)
+        pass
+        # if not ("api_data" in data and "user_id" in data["api_data"] and
+        #         "update_id" in data):
+        #     self.send_error(400)
+        #     raise _InvalidPost(400)
 
     def _get_content_len(self):
         clen = self.headers.get('content-length')
