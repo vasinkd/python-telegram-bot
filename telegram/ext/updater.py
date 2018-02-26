@@ -236,6 +236,7 @@ class Updater(object):
             key (:obj:`str`, optional): Path to the SSL key file.
             clean (:obj:`bool`, optional): Whether to clean any pending updates on Telegram servers
                 before actually starting the webhook. Default is ``False``.
+                clean MAY NOT WORK in this fork since for api calls update_id is set to 1
             bootstrap_retries (:obj:`int`, optional): Whether the bootstrapping phase of the
                 `Updater` will retry on failures on the Telegram server.
 

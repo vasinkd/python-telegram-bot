@@ -108,6 +108,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             data = json.loads(json_string)
             if self.path == "/api":
                 self._validate_api(data)
+                data = {"api_request": data}
                 data["update_id"] = 1
 
             self.send_response(200)
