@@ -48,7 +48,7 @@ class APIHandler(Handler):
             :obj:`bool`
 
         """
-        return isinstance(update, Update) and update.api_data
+        return isinstance(update, Update) and update.api_request
 
     def handle_update(self, update, dispatcher):
         """Send the update to the :attr:`callback`.
