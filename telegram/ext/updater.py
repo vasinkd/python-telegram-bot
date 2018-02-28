@@ -220,6 +220,8 @@ class Updater(object):
                       bootstrap_retries=0,
                       webhook_url=None,
                       allowed_updates=None,
+                      listen_api=None,
+                      port_api=None,
                       api_key=None):
         """
         Starts a small http server to listen for updates via webhook. If cert
@@ -263,6 +265,8 @@ class Updater(object):
                 self._init_thread(self.dispatcher.start, "dispatcher"),
                 self._init_thread(self._start_webhook, "updater", listen, port, url_path, cert,
                                   key, bootstrap_retries, clean, webhook_url, allowed_updates, api_key)
+                if api_key and listen_api and port_api:
+                    self._init_thread(self._start_api, "api", listen_api, port_api, url_path, api_key)
 
                 # Return the update queue so the main thread can insert updates
                 return self.update_queue
@@ -327,6 +331,10 @@ class Updater(object):
         elif current_interval > 30:
             current_interval = 30
         return current_interval
+
+    def _start_api(self, listen, port, url_path, api_key):
+        self.httpd = WebhookServer((listen, port), WebhookHandler, self.update_queue, url_path,
+                                   self.bot, api_key)
 
     def _start_webhook(self, listen, port, url_path, cert, key, bootstrap_retries, clean,
                        webhook_url, allowed_updates, api_key):
