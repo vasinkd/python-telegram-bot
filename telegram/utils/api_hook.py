@@ -21,6 +21,7 @@ class _InvalidPost(Exception):
 class APIServer(HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, update_queue, bot, api_key):
         super(APIServer, self).__init__(server_address, RequestHandlerClass)
+        self.logger = logging.getLogger(__name__)
         self.bot = bot
         self.api_key=api_key
         self.update_queue = update_queue
@@ -32,6 +33,10 @@ class APIServerHandler(BaseHTTPRequestHandler):
     #     self.send_response(200)
     #     self.send_header('Content-type', 'text/html')
     #     self.end_headers()
+
+    def __init__(self, request, client_address, server):
+        self.logger = logging.getLogger(__name__)
+        super(APIServerHandler, self).__init__(request, client_address, server)
 
     def do_HEAD(self):
         self.send_response(200)
