@@ -34,6 +34,8 @@ from telegram.error import Unauthorized, InvalidToken, RetryAfter, TimedOut
 from telegram.utils.helpers import get_signal_name
 from telegram.utils.request import Request
 from telegram.utils.webhookhandler import (WebhookServer, WebhookHandler)
+from telegram.utils.api_hook import (APIServer, APIServerHandler)
+
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -220,8 +222,7 @@ class Updater(object):
                       bootstrap_retries=0,
                       webhook_url=None,
                       allowed_updates=None,
-                      listen_api=None,
-                      port_api=None,
+                      api_port=None,
                       api_key=None):
         """
         Starts a small http server to listen for updates via webhook. If cert
@@ -265,8 +266,7 @@ class Updater(object):
                 self._init_thread(self.dispatcher.start, "dispatcher"),
                 self._init_thread(self._start_webhook, "updater", listen, port, url_path, cert,
                                   key, bootstrap_retries, clean, webhook_url, allowed_updates, api_key)
-                if api_key and listen_api and port_api:
-                    self._init_thread(self._start_api, "api", listen_api, port_api, url_path, api_key)
+                self._init_thread(self._start_api, "apiserver", listen, api_port, api_key)
 
                 # Return the update queue so the main thread can insert updates
                 return self.update_queue
@@ -332,9 +332,10 @@ class Updater(object):
             current_interval = 30
         return current_interval
 
-    def _start_api(self, listen, port, url_path, api_key):
-        self.httpd = WebhookServer((listen, port), WebhookHandler, self.update_queue, url_path,
+    def _start_api(self, listen, api_port, api_key):
+        self.httpapi = APIServer((listen, api_port), APIServerHandler, self.update_queue,
                                    self.bot, api_key)
+        self.httpapi.serve_forever(poll_interval=0.5)
 
     def _start_webhook(self, listen, port, url_path, cert, key, bootstrap_retries, clean,
                        webhook_url, allowed_updates, api_key):
