@@ -106,10 +106,6 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             json_string = bytes_to_native_str(buf)
 
             data = json.loads(json_string)
-            if self.path == "/api":
-                self._validate_api(data)
-                data = {"api_request": data}
-                data["update_id"] = 1
 
             self.send_response(200)
             self.end_headers()
@@ -122,21 +118,9 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
             self.server.update_queue.put(update)
 
     def _validate_post(self):
-        if self.path != "/api":
-            if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
-                    self.headers['content-type'] == 'application/json'):
-                raise _InvalidPost(403)
-        else:
-            if not ('authorization' in self.headers and
-                    self.headers['authorization'] == self.server.api_key):
-                raise _InvalidPost(401)
-
-    def _validate_api(self, data):
-        pass
-        # if not ("api_data" in data and "user_id" in data["api_data"] and
-        #         "update_id" in data):
-        #     self.send_error(400)
-        #     raise _InvalidPost(400)
+        if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
+                self.headers['content-type'] == 'application/json'):
+            raise _InvalidPost(403)
 
     def _get_content_len(self):
         clen = self.headers.get('content-length')

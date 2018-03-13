@@ -76,6 +76,7 @@ class APIServerHandler(BaseHTTPRequestHandler):
     def _validate_post(self):
         if not ('authorization' in self.headers and self.path == "/api" and
                 self.headers['authorization'] == self.server.api_key):
+            self.logger.debug("Unauthorized Call to API from ip {0}".format(self.address_string()))
             raise _InvalidPost(401)
 
     def _validate_api(self, data):
