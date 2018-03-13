@@ -120,6 +120,7 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
     def _validate_post(self):
         if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
                 self.headers['content-type'] == 'application/json'):
+            self.logger.info("Invalid Call to Main Server from ip {0} to path {1} with headers:\n{2}".format(self.address_string(), self.path, self.headers))
             raise _InvalidPost(403)
 
     def _get_content_len(self):
