@@ -3,8 +3,8 @@ Credits
 
 ``python-telegram-bot`` was originally created by
 `Leandro Toledo <https://github.com/leandrotoledo>`_ and is now maintained by
-`Jannes Höke <https://github.com/jh0ker>`_ (`@jh0ker <https://t.me/jh0ker>`_ on Telegram) and
-`Noam Meltzer <https://github.com/tsnoam>`_.
+`Jannes Höke <https://github.com/jh0ker>`_ (`@jh0ker <https://t.me/jh0ker>`_ on Telegram),
+`Noam Meltzer <https://github.com/tsnoam>`_, `Pieter Schutz <https://github.com/eldinnie>`_ and `Jasmin Bom <https://github.com/jsmnbom>`_.
 
 We're vendoring urllib3 as part of ``python-telegram-bot`` which is distributed under the MIT
 license. For more info, full credits & license terms, the sources can be found here:
@@ -24,6 +24,7 @@ The following wonderful people contributed directly or indirectly to this projec
 - `daimajia <https://github.com/daimajia>`_
 - `Daniel Reed <https://github.com/nmlorg>`_
 - `Eli Gao <https://github.com/eligao>`_
+- `Emilio Molinari <https://github.com/xates>`_
 - `ErgoZ Riftbit Vaper <https://github.com/ergoz>`_
 - `Eugene Lisitsky <https://github.com/lisitsky>`_
 - `Eugenio Panadero <https://github.com/azogue>`_
@@ -31,7 +32,7 @@ The following wonderful people contributed directly or indirectly to this projec
 - `franciscod <https://github.com/franciscod>`_
 - `Hugo Damer <https://github.com/HakimusGIT>`_
 - `ihoru <https://github.com/ihoru>`_
-- `Jacob Bom <https://github.com/bomjacob>`_
+- `Jasmin Bom <https://github.com/jsmnbom>`_
 - `JASON0916 <https://github.com/JASON0916>`_
 - `jeffffc <https://github.com/jeffffc>`_
 - `Jelle Besseling <https://github.com/pingiun>`_
@@ -52,8 +53,10 @@ The following wonderful people contributed directly or indirectly to this projec
 - `Noam Meltzer <https://github.com/tsnoam>`_
 - `Oleg Shlyazhko <https://github.com/ollmer>`_
 - `Oleg Sushchenko <https://github.com/feuillemorte>`_
+- `Or Bin <https://github.com/OrBin>`_
 - `overquota <https://github.com/overquota>`_
 - `Patrick Hofmann <https://github.com/PH89>`_
+- `Paul Larsen <https://github.com/PaulSonOfLars>`_
 - `Pieter Schutz <https://github.com/eldinnie>`_
 - `Rahiel Kasim <https://github.com/rahiel>`_
 - `Sascha <https://github.com/saschalalala>`_
@@ -61,8 +64,10 @@ The following wonderful people contributed directly or indirectly to this projec
 - `Simon Schürrle <https://github.com/SitiSchu>`_
 - `sooyhwang <https://github.com/sooyhwang>`_
 - `thodnev <https://github.com/thodnev>`_
+- `Trainer Jono <https://github.com/Tr-Jono>`_
 - `Valentijn <https://github.com/Faalentijn>`_
 - `voider1 <https://github.com/voider1>`_
+- `Wagner Macedo <https://github.com/wagnerluis1982>`_
 - `wjt <https://github.com/wjt>`_
 
 Please add yourself here alphabetically when you submit your first pull request.
