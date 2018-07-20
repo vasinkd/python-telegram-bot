@@ -22,7 +22,7 @@ from telegram import TelegramObject
 from random import choice
 from string import ascii_letters, digits
 
-choices = ascii_letters + digits
+choices = ascii_letters + digits + "-="
 
 class InlineKeyboardButton(TelegramObject):
     """This object represents one button of an inline keyboard.
