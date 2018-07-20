@@ -19,7 +19,8 @@
 """This module contains an object that represents a Telegram InlineKeyboardButton."""
 
 from telegram import TelegramObject
-
+from random import choice
+from string import printable
 
 class InlineKeyboardButton(TelegramObject):
     """This object represents one button of an inline keyboard.
@@ -82,7 +83,7 @@ class InlineKeyboardButton(TelegramObject):
 
         # Optionals
         self.url = url
-        self.callback_data = callback_data
+        self.callback_data = callback_data + ''.join([choice(printable) for _ in range(20)]) if callback_data else None
         self.switch_inline_query = switch_inline_query
         self.switch_inline_query_current_chat = switch_inline_query_current_chat
         self.callback_game = callback_game
