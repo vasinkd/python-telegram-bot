@@ -20,7 +20,9 @@
 
 from telegram import TelegramObject
 from random import choice
-from string import ascii_letters
+from string import ascii_letters, digits
+
+choices = ascii_letters + digits
 
 class InlineKeyboardButton(TelegramObject):
     """This object represents one button of an inline keyboard.
@@ -83,7 +85,7 @@ class InlineKeyboardButton(TelegramObject):
 
         # Optionals
         self.url = url
-        self.callback_data = callback_data + ''.join([choice(ascii_letters) for _ in range(20)]) if callback_data else None
+        self.callback_data = callback_data + ''.join([choice(choices) for _ in range(10)]) if callback_data else None
         self.switch_inline_query = switch_inline_query
         self.switch_inline_query_current_chat = switch_inline_query_current_chat
         self.callback_game = callback_game

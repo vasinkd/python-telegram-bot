@@ -85,7 +85,7 @@ class CallbackQuery(TelegramObject):
         self.chat_instance = chat_instance
         # Optionals
         self.message = message
-        self.data, self.button_id = data[:-20], data[-20:] if data else (None, None)
+        self.data, self.button_id = data[:-10], data[-10:] if data else (None, None)
         self.inline_message_id = inline_message_id
         self.game_short_name = game_short_name
 
