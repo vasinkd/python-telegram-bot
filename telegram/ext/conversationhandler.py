@@ -231,18 +231,19 @@ class ConversationHandler(Handler):
 
             old_state, new_state = state
             error = False
-            try:
-                res = new_state.result(timeout=self.run_async_timeout)
-            except Exception as exc:
-                self.logger.exception("Promise function raised exception")
-                self.logger.exception("{}".format(exc))
+            if new_state.done.is_set():
+                try:
+                    res = new_state.result(timeout=self.run_async_timeout)
+                    self.update_state(res, key)
+                    state = self.conversations.get(key)
+                except Exception as exc:
+                    self.logger.exception("Promise function raised exception")
+                    self.logger.exception("{}".format(exc))
+                    error = True
+            else:
                 error = True
 
-            if not error and new_state.done.is_set():
-                self.update_state(res, key)
-                state = self.conversations.get(key)
-
-            else:
+            if error:
                 for candidate in (self.timed_out_behavior or []):
                     if candidate.check_update(update):
                         # Save the current user and the selected handler for handle_update
