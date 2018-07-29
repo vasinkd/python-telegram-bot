@@ -234,7 +234,7 @@ class ConversationHandler(Handler):
             if new_state.done.is_set():
                 try:
                     res = new_state.result(timeout=self.run_async_timeout)
-                    res = res if res else old_state
+                    res = res if res is not None else old_state
                     self.update_state(res, key)
                     state = self.conversations.get(key)
                 except Exception as exc:
