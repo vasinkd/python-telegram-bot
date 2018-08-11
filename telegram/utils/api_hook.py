@@ -18,12 +18,13 @@ class _InvalidPost(Exception):
         self.http_code = http_code
         super(_InvalidPost, self).__init__()
 
+
 class APIServer(HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, update_queue, bot, api_key):
         super(APIServer, self).__init__(server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
         self.bot = bot
-        self.api_key=api_key
+        self.api_key = api_key
         self.update_queue = update_queue
 
 
@@ -76,7 +77,9 @@ class APIServerHandler(BaseHTTPRequestHandler):
     def _validate_post(self):
         if not ('authorization' in self.headers and self.path == "/api" and
                 self.headers['authorization'] == self.server.api_key):
-            self.logger.info("Unauthorized Call to API Server from ip {0} to path {1} with headers:\n{2}".format(self.address_string(), self.path, self.headers))
+            self.logger.debug("Unauthorized Call to API Server from ip {0} "
+                              "to path {1} with headers:\n{2}".format(self.address_string(),
+                                                                      self.path, self.headers))
             raise _InvalidPost(401)
 
     def _validate_api(self, data):
