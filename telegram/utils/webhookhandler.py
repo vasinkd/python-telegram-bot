@@ -44,13 +44,16 @@ class _InvalidPost(Exception):
 
 class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, object):
 
-    def __init__(self, server_address, RequestHandlerClass, update_queue, webhook_path, bot, api_key):
+    daemon_threads = True
+
+    def __init__(self, server_address, RequestHandlerClass, update_queue,
+                 webhook_path, bot, api_key):
         super(WebhookServer, self).__init__(server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
         self.webhook_path = webhook_path
         self.bot = bot
-        self.api_key=api_key
+        self.api_key = api_key
         self.is_running = False
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
@@ -58,7 +61,7 @@ class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, obje
     def serve_forever(self, poll_interval=0.5):
         with self.server_lock:
             self.is_running = True
-            self.logger.debug('Webhook Server started.')
+            self.logger.debug('ThreadedWebhook Server started.')
             super(WebhookServer, self).serve_forever(poll_interval)
             self.logger.debug('Webhook Server stopped.')
 
