@@ -27,8 +27,10 @@ except ImportError:
     import json
 try:
     import BaseHTTPServer
+    import SocketServer
 except ImportError:
     import http.server as BaseHTTPServer
+    import socketserver as SocketServer
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -40,7 +42,7 @@ class _InvalidPost(Exception):
         super(_InvalidPost, self).__init__()
 
 
-class WebhookServer(BaseHTTPServer.HTTPServer, object):
+class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, object):
 
     def __init__(self, server_address, RequestHandlerClass, update_queue, webhook_path, bot, api_key):
         super(WebhookServer, self).__init__(server_address, RequestHandlerClass)
