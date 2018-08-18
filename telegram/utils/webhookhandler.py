@@ -27,10 +27,10 @@ except ImportError:
     import json
 try:
     import BaseHTTPServer
-    import SocketServer
+    # import SocketServer
 except ImportError:
     import http.server as BaseHTTPServer
-    import socketserver as SocketServer
+    # import socketserver as SocketServer
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -42,13 +42,11 @@ class _InvalidPost(Exception):
         super(_InvalidPost, self).__init__()
 
 
-class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, object):
-
-    timeout = 2
+class WebhookServer(BaseHTTPServer.HTTPServer, object):
 
     def __init__(self, server_address, RequestHandlerClass, update_queue,
                  webhook_path, bot, api_key):
-        BaseHTTPServer.HTTPServer.__init__(self, server_address, RequestHandlerClass)
+        super(WebhookServer, self).__init__(server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
         self.webhook_path = webhook_path
@@ -57,10 +55,6 @@ class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, obje
         self.is_running = False
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
-
-    # def finish_request(self, request, client_address):
-    #     request.settimeout(30)
-    #     BaseHTTPServer.HTTPServer.finish_request(self, request, client_address)
 
     def serve_forever(self, poll_interval=0.5):
         with self.server_lock:
@@ -75,7 +69,7 @@ class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, obje
                 self.logger.warning('Webhook Server already stopped.')
                 return
             else:
-                BaseHTTPServer.HTTPServer.shutdown()
+                super(WebhookServer, self).shutdown()
                 self.is_running = False
 
     def handle_error(self, request, client_address):
@@ -101,15 +95,6 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-
-    def handle(self):
-        """Handle multiple requests if necessary."""
-        print("Inside handle")
-        self.close_connection = True
-
-        self.handle_one_request()
-        while not self.close_connection:
-            self.handle_one_request()
 
     def do_POST(self):
         self.logger.debug('Webhook triggered')
