@@ -46,7 +46,7 @@ class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, obje
 
     def __init__(self, server_address, RequestHandlerClass, update_queue,
                  webhook_path, bot, api_key):
-        BaseHTTPServer.HTTPServer.__init__(server_address, RequestHandlerClass)
+        BaseHTTPServer.HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
         self.webhook_path = webhook_path
@@ -78,8 +78,8 @@ class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, obje
 
     def handle_error(self, request, client_address):
         """Handle an error gracefully."""
-        self.logger.error('Exception happened during processing of request from %s',
-                          client_address, exc_info=True)
+        self.logger.info('Exception happened during processing of request from %s',
+                         client_address, exc_info=True)
 
 
 # WebhookHandler, process webhook calls
