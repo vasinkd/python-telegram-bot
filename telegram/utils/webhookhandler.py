@@ -42,7 +42,8 @@ class _InvalidPost(Exception):
         super(_InvalidPost, self).__init__()
 
 
-class WebhookServer(BaseHTTPServer.HTTPServer, object):
+class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, object):
+    timeout = 2
 
     def __init__(self, server_address, RequestHandlerClass, update_queue,
                  webhook_path, bot, api_key):
@@ -119,10 +120,6 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
 
             self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
             self.server.update_queue.put(update)
-
-    def handle(self):
-        self.send_response(200)
-        self.end_headers()
 
     def _validate_post(self):
         if not (self.path == self.server.webhook_path and 'content-type' in self.headers and
