@@ -32,6 +32,14 @@ except ImportError:
     import http.server as BaseHTTPServer
     # import socketserver as SocketServer
 
+import selectors
+
+if hasattr(selectors, 'PollSelector'):
+    _ServerSelector = selectors.PollSelector
+else:
+    _ServerSelector = selectors.SelectSelector
+
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
@@ -56,11 +64,74 @@ class WebhookServer(BaseHTTPServer.HTTPServer, object):
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
 
+    def serve_forever_base(self, poll_interval=0.5):
+        """Handle one request at a time until shutdown.
+
+        Polls for shutdown every poll_interval seconds. Ignores
+        self.timeout. If you need to do periodic tasks, do them in
+        another thread.
+        """
+        self.__is_shut_down.clear()
+        try:
+            # XXX: Consider using another file descriptor or connecting to the
+            # socket to wake this up instead of polling. Polling reduces our
+            # responsiveness to a shutdown request and wastes cpu at all other
+            # times.
+            with _ServerSelector() as selector:
+                selector.register(self, selectors.EVENT_READ)
+
+                while not self.__shutdown_request:
+                    ready = selector.select(poll_interval)
+                    if ready:
+                        print("inside ready block")
+                        self._handle_request_noblock()
+
+                    self.service_actions()
+        finally:
+            self.__shutdown_request = False
+            self.__is_shut_down.set()
+
+    def get_request(self):
+        """Get the request and client address from the socket.
+
+        May be overridden.
+
+        """
+        print("Inside get_request")
+        return self.socket.accept()
+
+    def _handle_request_noblock(self):
+        """Handle one request, without blocking.
+
+        I assume that selector.select() has returned that the socket is
+        readable before this function was called, so there should be no risk of
+        blocking in get_request().
+        """
+        print("Inside _handle_request_noblock 0")
+        try:
+            request, client_address = self.get_request()
+            print("Inside _handle_request_noblock 1")
+        except OSError:
+            return
+        if self.verify_request(request, client_address):
+            print("Inside _handle_request_noblock 2")
+            try:
+                print("Inside _handle_request_noblock 3")
+                self.process_request(request, client_address)
+            except Exception:
+                self.handle_error(request, client_address)
+                self.shutdown_request(request)
+            except:
+                self.shutdown_request(request)
+                raise
+        else:
+            self.shutdown_request(request)
+
     def serve_forever(self, poll_interval=0.5):
         with self.server_lock:
             self.is_running = True
             self.logger.debug('Webhook Server started.')
-            BaseHTTPServer.HTTPServer.serve_forever(self, poll_interval)
+            self.serve_forever_base(poll_interval)
             self.logger.debug('Webhook Server stopped.')
 
     def shutdown(self):
