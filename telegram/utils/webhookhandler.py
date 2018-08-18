@@ -44,6 +44,8 @@ class _InvalidPost(Exception):
 
 class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, object):
 
+    timeout = 2
+
     def __init__(self, server_address, RequestHandlerClass, update_queue,
                  webhook_path, bot, api_key):
         BaseHTTPServer.HTTPServer.__init__(self, server_address, RequestHandlerClass)
@@ -66,10 +68,6 @@ class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, obje
             self.logger.debug('Webhook Server started.')
             BaseHTTPServer.HTTPServer.serve_forever(self, poll_interval)
             self.logger.debug('Webhook Server stopped.')
-
-    def handle(self):
-        """Handle multiple requests if necessary."""
-        self.handle_one_request()
 
     def shutdown(self):
         with self.shutdown_lock:
@@ -103,6 +101,15 @@ class WebhookHandler(BaseHTTPServer.BaseHTTPRequestHandler, object):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
+
+    def handle(self):
+        """Handle multiple requests if necessary."""
+        print("Inside handle")
+        self.close_connection = True
+
+        self.handle_one_request()
+        while not self.close_connection:
+            self.handle_one_request()
 
     def do_POST(self):
         self.logger.debug('Webhook triggered')
