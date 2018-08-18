@@ -20,7 +20,7 @@ import logging
 
 from telegram import Update
 from future.utils import bytes_to_native_str
-from threading import Lock
+from threading import Lock, Event
 try:
     import ujson as json
 except ImportError:
@@ -63,6 +63,18 @@ class WebhookServer(BaseHTTPServer.HTTPServer, object):
         self.is_running = False
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
+        self.__is_shut_down = Event()
+        self.__shutdown_request = False
+
+    def shutdown(self):
+        """Stops the serve_forever loop.
+
+        Blocks until the loop has finished. This must be called while
+        serve_forever() is running in another thread, or it will
+        deadlock.
+        """
+        self.__shutdown_request = True
+        self.__is_shut_down.wait()
 
     def serve_forever_base(self, poll_interval=0.5):
         """Handle one request at a time until shutdown.
