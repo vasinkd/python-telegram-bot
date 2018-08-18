@@ -56,16 +56,20 @@ class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, obje
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
 
-    def finish_request(self, request, client_address):
-        request.settimeout(30)
-        BaseHTTPServer.HTTPServer.finish_request(self, request, client_address)
+    # def finish_request(self, request, client_address):
+    #     request.settimeout(30)
+    #     BaseHTTPServer.HTTPServer.finish_request(self, request, client_address)
 
     def serve_forever(self, poll_interval=0.5):
         with self.server_lock:
             self.is_running = True
             self.logger.debug('Webhook Server started.')
-            super(WebhookServer, self).serve_forever(poll_interval)
+            BaseHTTPServer.HTTPServer.serve_forever(self, poll_interval)
             self.logger.debug('Webhook Server stopped.')
+
+    def handle(self):
+        """Handle multiple requests if necessary."""
+        self.handle_one_request()
 
     def shutdown(self):
         with self.shutdown_lock:
@@ -73,7 +77,7 @@ class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, obje
                 self.logger.warning('Webhook Server already stopped.')
                 return
             else:
-                super(WebhookServer, self).shutdown()
+                BaseHTTPServer.HTTPServer.shutdown()
                 self.is_running = False
 
     def handle_error(self, request, client_address):
