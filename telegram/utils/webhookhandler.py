@@ -67,6 +67,7 @@ class WebhookServer(BaseHTTPServer.HTTPServer, object):
         self.shutdown_lock = Lock()
         self.__is_shut_down = Event()
         self.__shutdown_request = False
+        self.timeout = 0
 
     def shutdown(self):
         """Stops the serve_forever loop.
