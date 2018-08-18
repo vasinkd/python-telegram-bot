@@ -43,11 +43,10 @@ class _InvalidPost(Exception):
 
 
 class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, object):
-    timeout = 2
 
     def __init__(self, server_address, RequestHandlerClass, update_queue,
                  webhook_path, bot, api_key):
-        super(WebhookServer, self).__init__(server_address, RequestHandlerClass)
+        BaseHTTPServer.HTTPServer.__init__(server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
         self.webhook_path = webhook_path
@@ -56,6 +55,10 @@ class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, obje
         self.is_running = False
         self.server_lock = Lock()
         self.shutdown_lock = Lock()
+
+    def finish_request(self, request, client_address):
+        request.settimeout(30)
+        BaseHTTPServer.HTTPServer.finish_request(self, request, client_address)
 
     def serve_forever(self, poll_interval=0.5):
         with self.server_lock:
@@ -75,7 +78,7 @@ class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, obje
 
     def handle_error(self, request, client_address):
         """Handle an error gracefully."""
-        self.logger.debug('Exception happened during processing of request from %s',
+        self.logger.error('Exception happened during processing of request from %s',
                           client_address, exc_info=True)
 
 
