@@ -42,7 +42,7 @@ class _InvalidPost(Exception):
         super(_InvalidPost, self).__init__()
 
 
-class WebhookServer(BaseHTTPServer.HTTPServer, SocketServer.ThreadingMixIn, object):
+class WebhookServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer, object):
 
     def __init__(self, server_address, RequestHandlerClass, update_queue,
                  webhook_path, bot, api_key):
