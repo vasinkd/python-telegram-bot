@@ -52,6 +52,8 @@ class _InvalidPost(Exception):
 
 class WebhookServer(BaseHTTPServer.HTTPServer, object):
 
+    timeout = 0
+
     def __init__(self, server_address, RequestHandlerClass, update_queue,
                  webhook_path, bot, api_key):
         super(WebhookServer, self).__init__(server_address, RequestHandlerClass)
