@@ -1,7 +1,9 @@
 try:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+    from SocketServer import ThreadingMixIn
 except ImportError:
     from http.server import BaseHTTPRequestHandler, HTTPServer
+    from socketserver import ThreadingMixIn
 
 from future.utils import bytes_to_native_str
 import json
@@ -19,7 +21,7 @@ class _InvalidPost(Exception):
         super(_InvalidPost, self).__init__()
 
 
-class APIServer(HTTPServer):
+class APIServer(HTTPServer, ThreadingMixIn):
     def __init__(self, server_address, RequestHandlerClass, update_queue, bot, api_key):
         super(APIServer, self).__init__(server_address, RequestHandlerClass)
         self.logger = logging.getLogger(__name__)
