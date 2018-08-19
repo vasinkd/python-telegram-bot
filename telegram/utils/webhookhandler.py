@@ -28,22 +28,16 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class WebhookServer(HTTPServer):
-    def __init__(self, server_address, RequestHandlerClass, webhook_app,
-                 ssl_ctx, update_queue, webhook_path, bot, api_key):
-        self.server = HTTPServer(webhook_app, ssl_options=ssl_ctx)
-        self.address, self.port = server_address
-        self.RequestHandlerClass = RequestHandlerClass
+    def __init__(self, port, webhook_app, ssl_ctx):
+        self.http_server = HTTPServer(webhook_app, ssl_options=ssl_ctx)
+        self.port = port
         self.logger = logging.getLogger(__name__)
-        self.update_queue = update_queue
-        self.webhook_path = webhook_path
-        self.bot = bot
-        self.api_key = api_key
         self.is_running = False
 
     def serve_forever(self):
         self.is_running = True
         self.logger.debug('Webhook Server started.')
-        self.server.listen(self.port)
+        self.http_server.listen(self.port)
         IOLoop.current().start()
 
     def shutdown(self):
@@ -58,9 +52,10 @@ class WebhookServer(HTTPServer):
 
 class WebhookAppClass(tornado.web.Application):
 
-    def __init__(self, webhook_path):
+    def __init__(self, webhook_path, bot, update_queue):
+        shared_objects = {"bot": bot, "update_queue": update_queue}
         handlers = [
-            (r"{0}/?".format(webhook_path), WebhookHandler)
+            (r"{0}/?".format(webhook_path), WebhookHandler, shared_objects)
             ]
         tornado.web.Application.__init__(self, handlers)
 
@@ -74,6 +69,10 @@ class WebhookHandler(tornado.web.RequestHandler):
     def __init__(self, application, request, **kwargs):
         super(WebhookHandler, self).__init__(application, request, **kwargs)
         self.logger = logging.getLogger(__name__)
+
+    def initialize(self, shared_objects):
+        self.bot = shared_objects["bot"]
+        self.update_queue = shared_objects["update_queue"]
 
     def prepare(self):
         self.form_data = {
@@ -89,9 +88,9 @@ class WebhookHandler(tornado.web.RequestHandler):
         self._validate_post()
         self.set_status(200)
         self.logger.debug('Webhook received data: {}'.format(self.form_data))
-        update = Update.de_json(self.form_data, self.server.bot)
+        update = Update.de_json(self.form_data, self.bot)
         self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
-        self.server.update_queue.put(update)
+        self.update_queue.put(update)
 
     def _validate_post(self):
         ct_header = self.request.headers.get("Content-Type", None)

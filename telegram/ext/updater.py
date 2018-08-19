@@ -372,8 +372,7 @@ class Updater(object):
 
         # Create and start server
         asyncio.set_event_loop(asyncio.new_event_loop())
-        self.httpd = WebhookServer((listen, port), WebhookHandler, app, ssl_ctx,
-                                   self.update_queue, url_path, self.bot, api_key)
+        self.httpd = WebhookServer(port, app, ssl_ctx)
 
         if use_ssl:
             self._check_ssl_cert(cert, key)
