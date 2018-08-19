@@ -350,7 +350,7 @@ class Updater(object):
         return current_interval
 
     def _start_api(self, listen, api_port, api_key):
-        app = ApiAppClass("api", self.bot, self.update_queue, api_key)
+        app = ApiAppClass("/api", self.bot, self.update_queue, api_key)
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.httpapi = WebhookServer(api_port, app, None)
         self.httpapi.serve_forever()
