@@ -30,7 +30,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 class WebhookServer(HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, webhook_app,
                  ssl_ctx, update_queue, webhook_path, bot, api_key):
-        HTTPServer.__init__(webhook_app, ssl_options=ssl_ctx)
+        self.server = HTTPServer(webhook_app, ssl_options=ssl_ctx)
         self.address, self.port = server_address
         self.RequestHandlerClass = RequestHandlerClass
         self.logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class WebhookServer(HTTPServer):
     def serve_forever(self):
         self.is_running = True
         self.logger.debug('Webhook Server started.')
-        self.listen(self.port)
+        self.server.listen(self.port)
         IOLoop.current().start()
 
     def shutdown(self):
@@ -71,11 +71,11 @@ class WebhookAppClass(tornado.web.Application):
 class WebhookHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ["POST"]
 
-    # def prepare(self):
-    #     self.form_data = {
-    #         key: [bytes_to_native_str(val) for val in val_list]
-    #         for key, val_list in self.request.arguments.items()
-    #         }
+    def prepare(self):
+        self.form_data = {
+            key: [bytes_to_native_str(val) for val in val_list]
+            for key, val_list in self.request.arguments.items()
+            }
 
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
