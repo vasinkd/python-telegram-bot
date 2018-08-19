@@ -88,7 +88,7 @@ class WebhookHandler(tornado.web.RequestHandler):
         self.logger.debug('Webhook triggered')
         self._validate_post()
         self.set_status(200)
-        self.logger.debug('Webhook received data: ' + self.form_data)
+        self.logger.debug('Webhook received data: {}'.format(self.form_data))
         update = Update.de_json(self.form_data, self.server.bot)
         self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
         self.server.update_queue.put(update)
@@ -112,5 +112,5 @@ class WebhookHandler(tornado.web.RequestHandler):
         The client ip is prefixed to every message.
 
         """
-        super(WebhookHandler, self).write_error(self, status_code, **kwargs)
+        super(WebhookHandler, self).write_error(status_code, **kwargs)
         self.logger.debug("%s - - %s" % (self.request.remote_ip, kwargs))
