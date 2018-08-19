@@ -55,7 +55,7 @@ class ApiHandler(tornado.web.RequestHandler):
     def _validate_post(self):
         ct_header = self.request.headers.get('Content-Type', None)
         auth_header = self.request.headers.get('Authorization', None)
-        if (ct_header == 'application/json') or (auth_header != self.api_key):
+        if (ct_header != 'application/json') or (auth_header != self.api_key):
             raise tornado.web.HTTPError(403)
 
     def write_error(self, status_code, **kwargs):
