@@ -30,8 +30,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 class WebhookServer(HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, webhook_app,
                  ssl_ctx, update_queue, webhook_path, bot, api_key):
-        super(WebhookServer, self).__init__(webhook_app,
-                                            ssl_options=ssl_ctx)
+        HTTPServer.__init__(webhook_app, ssl_options=ssl_ctx)
         self.address, self.port = server_address
         self.RequestHandlerClass = RequestHandlerClass
         self.logger = logging.getLogger(__name__)
