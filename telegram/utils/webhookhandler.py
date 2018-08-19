@@ -113,4 +113,5 @@ class WebhookHandler(tornado.web.RequestHandler):
 
         """
         super(WebhookHandler, self).write_error(status_code, **kwargs)
-        self.logger.debug("%s - - %s" % (self.request.remote_ip, kwargs))
+        self.logger.debug("%s - - %s" % (self.request.remote_ip, "Exception in WebhookHandler"),
+                          exc_info=kwargs['exc_info'])
