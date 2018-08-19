@@ -20,6 +20,8 @@
 
 import logging
 import os
+import ssl
+import asyncio
 from threading import Thread, Lock, current_thread, Event
 from time import sleep
 import subprocess
@@ -362,8 +364,15 @@ class Updater(object):
         # Create Tornado app instance
         app = WebhookAppClass(url_path)
 
+        # Form SSL Context
+        ssl_ctx = None
+        if use_ssl:
+            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            ssl_ctx.load_cert_chain(cert, key)
+
         # Create and start server
-        self.httpd = WebhookServer((listen, port), WebhookHandler, app, cert, key,
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        self.httpd = WebhookServer((listen, port), WebhookHandler, app, ssl_ctx,
                                    self.update_queue, url_path, self.bot, api_key)
 
         if use_ssl:
