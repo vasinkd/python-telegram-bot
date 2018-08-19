@@ -49,7 +49,6 @@ class ApiHandler(tornado.web.RequestHandler):
         self.set_status(200)
         self.logger.debug('API received data: ' + json_string)
         update = Update.de_json(data, self.bot)
-        self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
         self.update_queue.put(update)
 
     def _validate_post(self):
