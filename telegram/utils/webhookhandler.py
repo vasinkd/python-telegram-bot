@@ -79,19 +79,13 @@ class WebhookHandler(tornado.web.RequestHandler):
         self.bot = bot
         self.update_queue = update_queue
 
-    # def prepare(self):
-    #     self.form_data = {
-    #         key: [bytes_to_native_str(val) for val in val_list]
-    #         for key, val_list in self.request.arguments.items()
-    #         }
-
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
     def post(self):
         self.logger.debug('Webhook triggered')
         self._validate_post()
-        json_string = bytes_to_native_str(self.request.body)
+        json_string = self.request.body#bytes_to_native_str(self.request.body)
         data = json.loads(json_string)
         self.set_status(200)
         self.logger.debug('Webhook received data: ' + json_string)
