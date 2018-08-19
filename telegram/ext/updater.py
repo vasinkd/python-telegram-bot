@@ -361,7 +361,7 @@ class Updater(object):
             url_path = '/{0}'.format(url_path)
 
         # Create Tornado app instance
-        app = WebhookAppClass()
+        app = WebhookAppClass(url_path)
 
         # Create and start server
         self.httpd = WebhookServer((listen, port), WebhookHandler, app, self.update_queue,

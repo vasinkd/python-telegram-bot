@@ -62,8 +62,7 @@ class WebhookServer(HTTPServer):
 
 class WebhookAppClass(tornado.web.Application):
 
-    def __init__(self, server_address, RequestHandlerClass, update_queue,
-                 webhook_path, bot, api_key):
+    def __init__(self, webhook_path):
         handlers = [
             (r"{0}/?".format(webhook_path), WebhookHandler)
             ]
