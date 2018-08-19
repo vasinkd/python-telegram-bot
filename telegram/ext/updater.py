@@ -350,7 +350,7 @@ class Updater(object):
 
     def _start_api(self, listen, api_port, api_key):
         self.httpapi = APIServer((listen, api_port), APIServerHandler, self.update_queue,
-                                   self.bot, api_key)
+                                 self.bot, api_key)
         self.httpapi.serve_forever(poll_interval=0.5)
 
     def _start_webhook(self, listen, port, url_path, cert, key, bootstrap_retries, clean,
