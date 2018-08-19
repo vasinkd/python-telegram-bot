@@ -71,6 +71,10 @@ class WebhookAppClass(tornado.web.Application):
 class WebhookHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ["POST"]
 
+    def __init__(self, application, request, **kwargs):
+        super(WebhookHandler, self).__init__(application, request, **kwargs)
+        self.logger = logging.getLogger(__name__)
+
     def prepare(self):
         self.form_data = {
             key: [bytes_to_native_str(val) for val in val_list]
