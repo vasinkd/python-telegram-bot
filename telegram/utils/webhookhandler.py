@@ -35,7 +35,7 @@ class WebhookServer(HTTPServer):
         ssl_ctx.load_cert_chain(cert, key)
         super(WebhookServer, self).__init__(webhook_app,
                                             ssl_options=ssl_ctx)
-        self.listen, self.port = server_address
+        self.address, self.port = server_address
         self.RequestHandlerClass = RequestHandlerClass
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
