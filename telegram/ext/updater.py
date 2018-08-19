@@ -34,7 +34,7 @@ from telegram.error import Unauthorized, InvalidToken, RetryAfter, TimedOut
 from telegram.utils.helpers import get_signal_name
 from telegram.utils.request import Request
 from telegram.utils.webhookhandler import (WebhookServer, WebhookAppClass)
-from telegram.utils.api_hook import (APIServer, APIServerHandler)
+from telegram.utils.api_hook import ApiAppClass
 
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -350,9 +350,10 @@ class Updater(object):
         return current_interval
 
     def _start_api(self, listen, api_port, api_key):
-        self.httpapi = APIServer((listen, api_port), APIServerHandler, self.update_queue,
-                                   self.bot, api_key)
-        self.httpapi.serve_forever(poll_interval=0.5)
+        app = ApiAppClass("api", self.bot, self.update_queue, api_key)
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        self.httpapi = WebhookServer(api_port, app, None)
+        self.httpapi.serve_forever()
 
     def _start_webhook(self, listen, port, url_path, cert, key, bootstrap_retries, clean,
                        webhook_url, allowed_updates, api_key):
