@@ -20,7 +20,6 @@
 
 import logging
 import os
-import ssl
 from threading import Thread, Lock, current_thread, Event
 from time import sleep
 import subprocess
@@ -364,8 +363,8 @@ class Updater(object):
         app = WebhookAppClass(url_path)
 
         # Create and start server
-        self.httpd = WebhookServer((listen, port), WebhookHandler, app, self.update_queue,
-                                   url_path, self.bot, api_key)
+        self.httpd = WebhookServer((listen, port), WebhookHandler, app, cert, key,
+                                   self.update_queue, url_path, self.bot, api_key)
 
         if use_ssl:
             self._check_ssl_cert(cert, key)
@@ -389,20 +388,11 @@ class Updater(object):
     def _check_ssl_cert(self, cert, key):
         # Check SSL-Certificate with openssl, if possible
         try:
-            exit_code = subprocess.call(
+            subprocess.call(
                 ["openssl", "x509", "-text", "-noout", "-in", cert],
                 stdout=open(os.devnull, 'wb'),
                 stderr=subprocess.STDOUT)
         except OSError:
-            exit_code = 0
-        if exit_code is 0:
-            try:
-                self.httpd.socket = ssl.wrap_socket(
-                    self.httpd.socket, certfile=cert, keyfile=key, server_side=True)
-            except ssl.SSLError as error:
-                self.logger.exception('Failed to init SSL socket')
-                raise TelegramError(str(error))
-        else:
             raise TelegramError('SSL Certificate invalid')
 
     @staticmethod
