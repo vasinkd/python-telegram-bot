@@ -46,6 +46,8 @@ class ApiHandler(tornado.web.RequestHandler):
         self._validate_post()
         json_string = bytes_to_native_str(self.request.body)
         data = json.loads(json_string)
+        data = {"api_request": data}
+        data["update_id"] = 1
         self.set_status(200)
         self.logger.debug('API received data: ' + json_string)
         update = Update.de_json(data, self.bot)
