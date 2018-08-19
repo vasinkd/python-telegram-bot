@@ -19,6 +19,10 @@
 import logging
 from telegram import Update
 from future.utils import bytes_to_native_str
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
@@ -75,11 +79,11 @@ class WebhookHandler(tornado.web.RequestHandler):
         self.bot = bot
         self.update_queue = update_queue
 
-    def prepare(self):
-        self.form_data = {
-            key: [bytes_to_native_str(val) for val in val_list]
-            for key, val_list in self.request.arguments.items()
-            }
+    # def prepare(self):
+    #     self.form_data = {
+    #         key: [bytes_to_native_str(val) for val in val_list]
+    #         for key, val_list in self.request.arguments.items()
+    #         }
 
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
@@ -87,9 +91,11 @@ class WebhookHandler(tornado.web.RequestHandler):
     def post(self):
         self.logger.debug('Webhook triggered')
         self._validate_post()
+        json_string = bytes_to_native_str(self.request.body)
+        data = json.loads(json_string)
         self.set_status(200)
-        self.logger.debug('Webhook received data: {}'.format(self.form_data))
-        update = Update.de_json(self.form_data, self.bot)
+        self.logger.debug('Webhook received data: ' + json_string)
+        update = Update.de_json(data, self.bot)
         self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
         self.update_queue.put(update)
 
