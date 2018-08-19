@@ -23,7 +23,7 @@ from future.utils import bytes_to_native_str
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 import tornado.web
-
+import tornado.iostream
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
@@ -72,11 +72,11 @@ class WebhookAppClass(tornado.web.Application):
 class WebhookHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ["POST"]
 
-    def prepare(self):
-        self.form_data = {
-            key: [bytes_to_native_str(val) for val in val_list]
-            for key, val_list in self.request.arguments.items()
-            }
+    # def prepare(self):
+    #     self.form_data = {
+    #         key: [bytes_to_native_str(val) for val in val_list]
+    #         for key, val_list in self.request.arguments.items()
+    #         }
 
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
