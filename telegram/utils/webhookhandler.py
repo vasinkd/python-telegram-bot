@@ -33,7 +33,7 @@ class WebhookServer(HTTPServer):
                  cert, key, update_queue, webhook_path, bot, api_key):
         ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_ctx.load_cert_chain(cert, key)
-        super(WebhookServer, self).__init__(webhook_app)
+        super(WebhookServer, self).__init__(webhook_app,
                                             ssl_options=ssl_ctx)
         self.listen, self.port = server_address
         self.RequestHandlerClass = RequestHandlerClass
