@@ -28,6 +28,7 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 import tornado.web
 import tornado.iostream
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
@@ -85,7 +86,7 @@ class WebhookHandler(tornado.web.RequestHandler):
     def post(self):
         self.logger.debug('Webhook triggered')
         self._validate_post()
-        json_string = self.request.body#bytes_to_native_str(self.request.body)
+        json_string = bytes_to_native_str(self.request.body)
         data = json.loads(json_string)
         self.set_status(200)
         self.logger.debug('Webhook received data: ' + json_string)
