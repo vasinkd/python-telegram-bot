@@ -53,9 +53,10 @@ class WebhookServer(HTTPServer):
 class WebhookAppClass(tornado.web.Application):
 
     def __init__(self, webhook_path, bot, update_queue):
-        shared_objects = {"bot": bot, "update_queue": update_queue}
+        self.shared_objects = {"bot": bot, "update_queue": update_queue}
         handlers = [
-            (r"{0}/?".format(webhook_path), WebhookHandler, shared_objects)
+            (r"{0}/?".format(webhook_path), WebhookHandler,
+             self.shared_objects)
             ]
         tornado.web.Application.__init__(self, handlers)
 

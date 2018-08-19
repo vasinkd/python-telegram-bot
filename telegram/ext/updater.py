@@ -362,7 +362,7 @@ class Updater(object):
             url_path = '/{0}'.format(url_path)
 
         # Create Tornado app instance
-        app = WebhookAppClass(url_path)
+        app = WebhookAppClass(url_path, self.bot, self.update_queue)
 
         # Form SSL Context
         ssl_ctx = None
