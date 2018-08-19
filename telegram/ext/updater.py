@@ -32,7 +32,7 @@ from telegram.ext import Dispatcher, JobQueue
 from telegram.error import Unauthorized, InvalidToken, RetryAfter, TimedOut
 from telegram.utils.helpers import get_signal_name
 from telegram.utils.request import Request
-from telegram.utils.webhookhandler import (WebhookServer, WebhookHandler)
+from telegram.utils.webhookhandler import (WebhookServer, WebhookHandler, WebhookAppClass)
 from telegram.utils.api_hook import (APIServer, APIServerHandler)
 
 
@@ -360,9 +360,12 @@ class Updater(object):
         if not url_path.startswith('/'):
             url_path = '/{0}'.format(url_path)
 
+        # Create Tornado app instance
+        app = WebhookAppClass()
+
         # Create and start server
-        self.httpd = WebhookServer((listen, port), WebhookHandler, self.update_queue, url_path,
-                                   self.bot, api_key)
+        self.httpd = WebhookServer((listen, port), WebhookHandler, app, self.update_queue,
+                                   url_path, self.bot, api_key)
 
         if use_ssl:
             self._check_ssl_cert(cert, key)
@@ -381,7 +384,7 @@ class Updater(object):
             self.logger.warning("cleaning updates is not supported if "
                                 "SSL-termination happens elsewhere; skipping")
 
-        self.httpd.serve_forever(poll_interval=1)
+        self.httpd.serve_forever()
 
     def _check_ssl_cert(self, cert, key):
         # Check SSL-Certificate with openssl, if possible

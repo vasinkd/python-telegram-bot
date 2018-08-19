@@ -17,33 +17,25 @@
 # You should have received a copy of the GNU Lesser Public License
 # along with this program.  If not, see [http://www.gnu.org/licenses/].
 import logging
-
 from telegram import Update
 from future.utils import bytes_to_native_str
-from threading import Lock
+# import ssl
 
+from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 import tornado.web
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
-class _InvalidPost(Exception):
-
-    def __init__(self, http_code):
-        self.http_code = http_code
-        super(_InvalidPost, self).__init__()
-
-
-class WebhookServer(tornado.web.Application):
-
-    def __init__(self, server_address, RequestHandlerClass, update_queue,
-                 webhook_path, bot, api_key):
-        handlers = [
-            (r"{0}/?".format(webhook_path), WebhookHandler)
-            ]
-        tornado.web.Application.__init__(self, handlers)
-        self.server_address = server_address
+class WebhookServer(HTTPServer):
+    def __init__(self, server_address, RequestHandlerClass, webhook_app,
+                 update_queue, webhook_path, bot, api_key):
+        # ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        # ssl_ctx.load_cert_chain(cert, key)
+        super(WebhookServer, self).__init__(webhook_app)
+                                            # ssl_options=ssl_ctx)
+        self.listen, self.port = server_address
         self.RequestHandlerClass = RequestHandlerClass
         self.logger = logging.getLogger(__name__)
         self.update_queue = update_queue
@@ -51,10 +43,8 @@ class WebhookServer(tornado.web.Application):
         self.bot = bot
         self.api_key = api_key
         self.is_running = False
-        self.server_lock = Lock()
-        self.shutdown_lock = Lock()
 
-    def serve_forever(self, poll_interval=0.5):
+    def serve_forever(self):
         self.is_running = True
         self.logger.debug('Webhook Server started.')
         self.listen(self.port)
@@ -64,30 +54,40 @@ class WebhookServer(tornado.web.Application):
         IOLoop.current().stop()
         self.is_running = False
 
-    # def handle_error(self, request, client_address):
-    #     """Handle an error gracefully."""
-    #     self.logger.info('Exception happened during processing of request from %s',
-    #                      client_address, exc_info=True)
+    def handle_error(self, request, client_address):
+        """Handle an error gracefully."""
+        self.logger.info('Exception happened during processing of request from %s',
+                         client_address, exc_info=True)
+
+
+class WebhookAppClass(tornado.web.Application):
+
+    def __init__(self, server_address, RequestHandlerClass, update_queue,
+                 webhook_path, bot, api_key):
+        handlers = [
+            (r"{0}/?".format(webhook_path), WebhookHandler)
+            ]
+        tornado.web.Application.__init__(self, handlers)
 
 
 # WebhookHandler, process webhook calls
 # Based on: https://github.com/eternnoir/pyTelegramBotAPI/blob/master/
 # examples/webhook_examples/webhook_cpython_echo_bot.py
 class WebhookHandler(tornado.web.RequestHandler):
-    server_version = 'WebhookHandler/2.0'
     SUPPORTED_METHODS = ["POST"]
 
     def prepare(self):
         self.form_data = {
             key: [bytes_to_native_str(val) for val in val_list]
             for key, val_list in self.request.arguments.items()
-        }
+            }
 
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
     def post(self):
         self.logger.debug('Webhook triggered')
+        self._validate_post()
         self.set_status(200)
         self.logger.debug('Webhook received data: ' + self.form_data)
         update = Update.de_json(self.form_data, self.server.bot)
@@ -97,7 +97,7 @@ class WebhookHandler(tornado.web.RequestHandler):
     def _validate_post(self):
         ct_header = self.request.headers.get("Content-Type", None)
         if ct_header != 'application/json':
-            tornado.web.HTTPError(403)
+            raise tornado.web.HTTPError(403)
 
     def write_error(self, status_code, **kwargs):
         """Log an arbitrary message.
