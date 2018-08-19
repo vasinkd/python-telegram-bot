@@ -67,10 +67,13 @@ class WebhookAppClass(tornado.web.Application):
 class WebhookHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ["POST"]
 
-    def initialize(self, shared_objects):
-        self.bot = shared_objects["bot"]
-        self.update_queue = shared_objects["update_queue"]
-        self.logger = shared_objects["logger"]
+    def __init__(self, application, request, **kwargs):
+        super(WebhookHandler, self).__init__(application, request, **kwargs)
+        self.logger = logging.getLogger(__name__)
+
+    def initialize(self, bot, update_queue):
+        self.bot = bot
+        self.update_queue = update_queue
 
     def prepare(self):
         self.form_data = {
