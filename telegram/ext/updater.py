@@ -365,11 +365,9 @@ class Updater(object):
                 raise TelegramError('SSL Certificate invalid')
 
         # Create and start server
-        loop = None
         if asyncio:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-        self.httpd = WebhookServer(port, app, ssl_ctx, loop)
+            asyncio.set_event_loop(asyncio.new_event_loop())
+        self.httpd = WebhookServer(port, app, ssl_ctx)
 
         if use_ssl:
             # DO NOT CHANGE: Only set webhook if SSL is handled by library
