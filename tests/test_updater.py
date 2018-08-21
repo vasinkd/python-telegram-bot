@@ -179,13 +179,13 @@ class TestUpdater(object):
 
             response = self._send_webhook_msg(ip, port, None, 'webookhandler.py')
             assert b'' == response.read()
-            assert 200 == response.code
+            assert 404 == response.code
 
             response = self._send_webhook_msg(ip, port, None, 'webookhandler.py',
                                               get_method=lambda: 'HEAD')
 
             assert b'' == response.read()
-            assert 200 == response.code
+            assert 404 == response.code
 
             # Test multiple shutdown() calls
             updater.httpd.shutdown()
