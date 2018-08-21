@@ -191,8 +191,8 @@ class TestUpdater(object):
             updater.httpd.shutdown()
         finally:
             updater.httpd.shutdown()
-            while updater.httpd._is_running:
-                sleep(0.2)
+            sleep(.2)
+            assert not updater.httpd.is_running
 
     def test_webhook_no_ssl(self, monkeypatch, updater):
         q = Queue()
