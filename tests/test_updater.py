@@ -201,6 +201,7 @@ class TestUpdater(object):
         monkeypatch.setattr('telegram.Bot.delete_webhook', lambda *args, **kwargs: True)
         ip = '127.0.0.1'
         port = randrange(1024, 49152)  # Select random port for travis
+        tg_err = False
         try:
             updater._start_webhook(
                 ip,
@@ -213,8 +214,8 @@ class TestUpdater(object):
                 webhook_url=None,
                 allowed_updates=None)
         except TelegramError:
-            # Make sure that Tornado wasn't started
-            pass
+            tg_err = True
+        assert tg_err
 
     def test_webhook_no_ssl(self, monkeypatch, updater):
         q = Queue()
@@ -233,7 +234,7 @@ class TestUpdater(object):
         self._send_webhook_msg(ip, port, update.to_json())
         sleep(.2)
         assert q.get(False) == update
-        updater.stop()
+        # updater.stop()
 
     @pytest.mark.parametrize(('error',),
                              argvalues=[(TelegramError(''),)],
