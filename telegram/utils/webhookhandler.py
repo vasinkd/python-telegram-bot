@@ -46,17 +46,17 @@ class WebhookServer(HTTPServer):
     def serve_forever(self):
         with self.server_lock:
             self.is_running = True
-            self.logger.info('Webhook Server started.')
+            self.logger.warning('Webhook Server started.')
             self.http_server.listen(self.port)
             self.loop = IOLoop.current()
             self.loop.start()
-            self.logger.info('Webhook Server stopped.')
+            self.logger.warning('Webhook Server stopped.')
             self.is_running = False
 
     def shutdown(self):
         with self.shutdown_lock:
             if not self.is_running:
-                self.logger.info('Webhook Server already stopped.')
+                self.logger.warning('Webhook Server already stopped.')
                 return
             else:
                 self.loop.add_callback(self.loop.stop)
