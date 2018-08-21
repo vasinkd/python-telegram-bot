@@ -193,7 +193,7 @@ class TestUpdater(object):
         finally:
             updater.httpd.shutdown()
             sleep(.2)
-            assert updater.httpd.is_running
+            assert not updater.httpd.is_running
 
     def test_webhook_ssl(self, monkeypatch, updater):
         ip = '127.0.0.1'
