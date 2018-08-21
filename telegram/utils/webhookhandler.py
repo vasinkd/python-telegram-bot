@@ -34,9 +34,10 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class WebhookServer(HTTPServer):
-    def __init__(self, port, webhook_app, ssl_ctx):
+    def __init__(self, port, webhook_app, ssl_ctx, loop):
         self.http_server = HTTPServer(webhook_app, ssl_options=ssl_ctx)
         self.port = port
+        self.loop = loop
         self.logger = logging.getLogger(__name__)
         self.is_running = False
         self.server_lock = Lock()
@@ -56,7 +57,9 @@ class WebhookServer(HTTPServer):
                 self.logger.warning('Webhook Server already stopped.')
                 return
             else:
-                IOLoop.current().stop()
+                if not self.loop:
+                    loop = IOLoop.current()
+                loop.stop()
                 self.is_running = False
 
     def handle_error(self, request, client_address):

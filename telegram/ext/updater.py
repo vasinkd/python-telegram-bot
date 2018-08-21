@@ -348,7 +348,6 @@ class Updater(object):
                        webhook_url, allowed_updates):
         self.logger.debug('Updater thread started (webhook)')
         use_ssl = cert is not None and key is not None
-        print(use_ssl)
         if not url_path.startswith('/'):
             url_path = '/{0}'.format(url_path)
 
@@ -366,9 +365,11 @@ class Updater(object):
                 raise TelegramError('SSL Certificate invalid')
 
         # Create and start server
+        loop = None
         if asyncio:
+            loop = asyncio.new_event_loop()
             asyncio.set_event_loop(asyncio.new_event_loop())
-        self.httpd = WebhookServer(port, app, ssl_ctx)
+        self.httpd = WebhookServer(port, app, ssl_ctx, loop)
 
         if use_ssl:
             # DO NOT CHANGE: Only set webhook if SSL is handled by library
