@@ -210,6 +210,7 @@ class TestUpdater(object):
         sleep(.2)
         # Make sure that Tornado wasn't started
         assert updater.httpd is None
+        updater.stop()
 
     def test_webhook_no_ssl(self, monkeypatch, updater):
         q = Queue()
@@ -228,6 +229,7 @@ class TestUpdater(object):
         self._send_webhook_msg(ip, port, update.to_json())
         sleep(.2)
         assert q.get(False) == update
+        updater.stop()
 
     @pytest.mark.parametrize(('error',),
                              argvalues=[(TelegramError(''),)],
