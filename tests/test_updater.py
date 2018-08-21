@@ -281,7 +281,7 @@ class TestUpdater(object):
 
             with pytest.raises(HTTPError) as excinfo:
                 self._send_webhook_msg(ip, port, 'dummy-payload', content_len=-2)
-            assert excinfo.value.code == 403
+            assert excinfo.value.code == 500
 
             # TODO: prevent urllib or the underlying from adding content-length
             # with pytest.raises(HTTPError) as excinfo:
@@ -290,7 +290,7 @@ class TestUpdater(object):
 
             with pytest.raises(HTTPError):
                 self._send_webhook_msg(ip, port, 'dummy-payload', content_len='not-a-number')
-            assert excinfo.value.code == 403
+            assert excinfo.value.code == 500
 
         finally:
             updater.httpd.shutdown()
