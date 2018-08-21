@@ -58,8 +58,8 @@ class WebhookServer(HTTPServer):
                 return
             else:
                 if not self.loop:
-                    loop = IOLoop.current()
-                loop.stop()
+                    self.loop = IOLoop.current()
+                self.loop.stop()
                 self.is_running = False
 
     def handle_error(self, request, client_address):
