@@ -47,7 +47,8 @@ class WebhookServer(HTTPServer):
             self.is_running = True
             self.logger.debug('Webhook Server started.')
             self.http_server.listen(self.port)
-            IOLoop.current().start()
+            self.loop = IOLoop.current()
+            self.loop.start()
             self.logger.debug('Webhook Server stopped.')
 
     def shutdown(self):
@@ -56,7 +57,7 @@ class WebhookServer(HTTPServer):
                 self.logger.warning('Webhook Server already stopped.')
                 return
             else:
-                IOLoop.current().stop()
+                self.loop.stop()
                 self.is_running = False
 
     def handle_error(self, request, client_address):
