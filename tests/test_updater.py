@@ -177,22 +177,36 @@ class TestUpdater(object):
             sleep(.2)
             assert q.get(False) == update
 
-            response = self._send_webhook_msg(ip, port, None, 'webookhandler.py')
-            assert b'' == response.read()
-            assert 404 == response.code
+            # Without token returns 404
+            try:
+                self._send_webhook_msg(ip, port, None, 'webookhandler.py')
+            except HTTPError as httperr:
+                assert httperr.code == 404
 
-            response = self._send_webhook_msg(ip, port, None, 'webookhandler.py',
-                                              get_method=lambda: 'HEAD')
-
-            assert b'' == response.read()
-            assert 404 == response.code
-
+            try:
+                self._send_webhook_msg(ip, port, None, 'webookhandler.py',
+                                       get_method=lambda: 'HEAD')
+            except HTTPError as httperr:
+                assert httperr.code == 404
             # Test multiple shutdown() calls
             updater.httpd.shutdown()
         finally:
             updater.httpd.shutdown()
             sleep(.2)
             assert not updater.httpd.is_running
+
+    def test_webhook_ssl(self, monkeypatch, updater):
+        ip = '127.0.0.1'
+        port = randrange(1024, 49152)  # Select random port for travis
+        updater.start_webhook(
+            ip,
+            port,
+            url_path='TOKEN',
+            cert='./tests/test_updater.py',
+            key='./tests/test_updater.py', )
+        sleep(.2)
+        # Make sure that Tornado wasn't started
+        assert updater.httpd is None
 
     def test_webhook_no_ssl(self, monkeypatch, updater):
         q = Queue()
