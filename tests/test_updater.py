@@ -196,6 +196,8 @@ class TestUpdater(object):
             assert not updater.httpd.is_running
 
     def test_webhook_ssl(self, monkeypatch, updater):
+        monkeypatch.setattr('telegram.Bot.set_webhook', lambda *args, **kwargs: True)
+        monkeypatch.setattr('telegram.Bot.delete_webhook', lambda *args, **kwargs: True)
         ip = '127.0.0.1'
         port = randrange(1024, 49152)  # Select random port for travis
         updater.start_webhook(
