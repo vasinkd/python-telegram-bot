@@ -155,17 +155,15 @@ class TestUpdater(object):
 
         ip = '127.0.0.1'
         port = randrange(1024, 49152)  # Select random port for travis
-        try:
-            updater.start_webhook(
-                ip,
-                port,
-                url_path='TOKEN',
-                cert='./tests/test_updater.py',
-                key='./tests/test_updater.py', )
-            sleep(.2)
-        except TelegramError:
-            pass
-        # SSL-Wrapping will fail, so we start the server without SSL
+        updater.start_webhook(
+            ip,
+            port,
+            url_path='TOKEN',
+            cert='./tests/test_updater.py',
+            key='./tests/test_updater.py', )
+        sleep(.2)
+        # SSL-Wrapping will fail, so we have to stop updater and start it again without SSL
+        updater.stop()
         updater.start_webhook(
             ip,
             port,
