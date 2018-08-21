@@ -57,7 +57,8 @@ class WebhookServer(HTTPServer):
                 self.logger.warning('Webhook Server already stopped.')
                 return
             else:
-                IOLoop.current().add_callback(self.loop.stop)
+                ioloop = IOLoop.current()
+                ioloop.add_callback(ioloop.stop)
 
     def handle_error(self, request, client_address):
         """Handle an error gracefully."""
