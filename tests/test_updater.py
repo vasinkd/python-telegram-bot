@@ -161,7 +161,7 @@ class TestUpdater(object):
             url_path='TOKEN',
             cert='./tests/test_updater.py',
             key='./tests/test_updater.py', )
-        sleep(.2)
+        sleep(2)
         # SSL-Wrapping will fail, so we start the server without SSL
         thr = Thread(target=updater.httpd.serve_forever)
         thr.start()
