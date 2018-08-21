@@ -177,7 +177,7 @@ class TestUpdater(object):
             sleep(.2)
             assert q.get(False) == update
 
-            # Without token returns 404
+            # Returns 404 if path is incorrect
             try:
                 self._send_webhook_msg(ip, port, None, 'webookhandler.py')
             except HTTPError as httperr:
@@ -193,7 +193,7 @@ class TestUpdater(object):
         finally:
             updater.httpd.shutdown()
             sleep(.2)
-            assert not updater.httpd.is_running
+            assert updater.httpd.is_running
 
     def test_webhook_ssl(self, monkeypatch, updater):
         ip = '127.0.0.1'
