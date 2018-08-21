@@ -51,6 +51,8 @@ class WebhookServer(HTTPServer):
             self.loop = IOLoop.current()
             self.loop.start()
             self.logger.debug('Webhook Server stopped.')
+            print("1")
+            self.is_running = False
 
     def shutdown(self):
         with self.shutdown_lock:
@@ -58,9 +60,8 @@ class WebhookServer(HTTPServer):
                 self.logger.warning('Webhook Server already stopped.')
                 return
             else:
-                self.loop.stop()
-                self.is_running = False
-                self.loop = None
+                self.loop.add_callback(self.loop.stop)
+                print("2")
 
     def handle_error(self, request, client_address):
         """Handle an error gracefully."""

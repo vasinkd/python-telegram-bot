@@ -100,7 +100,6 @@ class Updater(object):
             raise ValueError('`token` and `bot` are mutually exclusive')
 
         self.logger = logging.getLogger(__name__)
-        self.start_num = 0
 
         con_pool_size = workers + 4
 
@@ -248,13 +247,11 @@ class Updater(object):
         with self.__lock:
             if not self.running:
                 self.running = True
-                self.start_num += 1
 
                 # Create & start threads
                 self.job_queue.start()
                 self._init_thread(self.dispatcher.start, "dispatcher"),
-                self._init_thread(self._start_webhook, "updater{}".format(self.start_num), listen,
-                                  port, url_path, cert,
+                self._init_thread(self._start_webhook, "updater", listen, port, url_path, cert,
                                   key, bootstrap_retries, clean, webhook_url, allowed_updates)
 
                 # Return the update queue so the main thread can insert updates
