@@ -194,6 +194,7 @@ class TestUpdater(object):
             updater.httpd.shutdown()
             sleep(.2)
             assert not updater.httpd.is_running
+            updater.stop()
 
     def test_webhook_ssl(self, monkeypatch, updater):
         monkeypatch.setattr('telegram.Bot.set_webhook', lambda *args, **kwargs: True)
