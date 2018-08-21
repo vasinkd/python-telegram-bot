@@ -21,7 +21,10 @@
 import logging
 import os
 import ssl
-import asyncio
+try:
+    import asyncio
+except ImportError:
+    asyncio = False
 from threading import Thread, Lock, current_thread, Event
 from time import sleep
 import subprocess
@@ -360,7 +363,8 @@ class Updater(object):
             ssl_ctx.load_cert_chain(cert, key)
 
         # Create and start server
-        asyncio.set_event_loop(asyncio.new_event_loop())
+        if asyncio:
+            asyncio.set_event_loop(asyncio.new_event_loop())
         self.httpd = WebhookServer(port, app, ssl_ctx)
 
         if use_ssl:
@@ -385,12 +389,16 @@ class Updater(object):
     def _check_ssl_cert(self, cert, key):
         # Check SSL-Certificate with openssl, if possible
         try:
-            subprocess.call(
+            exit_code = subprocess.call(
                 ["openssl", "x509", "-text", "-noout", "-in", cert],
                 stdout=open(os.devnull, 'wb'),
                 stderr=subprocess.STDOUT)
         except OSError:
-            self.logger.error('SSL Certificate invalid')
+            exit_code = 0
+        if exit_code is 0:
+            pass
+        else:
+            raise TelegramError('SSL Certificate invalid')
 
     @staticmethod
     def _gen_webhook_url(listen, port, url_path):
