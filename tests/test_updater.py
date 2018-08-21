@@ -155,15 +155,6 @@ class TestUpdater(object):
 
         ip = '127.0.0.1'
         port = randrange(1024, 49152)  # Select random port for travis
-        # updater.start_webhook(
-        #     ip,
-        #     port,
-        #     url_path='TOKEN',
-        #     cert='./tests/test_updater.py',
-        #     key='./tests/test_updater.py', )
-        # sleep(.2)
-        # SSL-Wrapping will fail, so we have to stop updater and start it again without SSL
-        # updater.stop()
         updater.start_webhook(
             ip,
             port,
@@ -196,26 +187,26 @@ class TestUpdater(object):
             assert not updater.httpd.is_running
             updater.stop()
 
-    # def test_webhook_ssl(self, monkeypatch, updater):
-    #     monkeypatch.setattr('telegram.Bot.set_webhook', lambda *args, **kwargs: True)
-    #     monkeypatch.setattr('telegram.Bot.delete_webhook', lambda *args, **kwargs: True)
-    #     ip = '127.0.0.1'
-    #     port = randrange(1024, 49152)  # Select random port for travis
-    #     tg_err = False
-    #     try:
-    #         updater._start_webhook(
-    #             ip,
-    #             port,
-    #             url_path='TOKEN',
-    #             cert='./tests/test_updater.py',
-    #             key='./tests/test_updater.py',
-    #             bootstrap_retries=0,
-    #             clean=False,
-    #             webhook_url=None,
-    #             allowed_updates=None)
-    #     except TelegramError:
-    #         tg_err = True
-    #     assert tg_err
+    def test_webhook_ssl(self, monkeypatch, updater):
+        monkeypatch.setattr('telegram.Bot.set_webhook', lambda *args, **kwargs: True)
+        monkeypatch.setattr('telegram.Bot.delete_webhook', lambda *args, **kwargs: True)
+        ip = '127.0.0.1'
+        port = randrange(1024, 49152)  # Select random port for travis
+        tg_err = False
+        try:
+            updater._start_webhook(
+                ip,
+                port,
+                url_path='TOKEN',
+                cert='./tests/test_updater.py',
+                key='./tests/test_updater.py',
+                bootstrap_retries=0,
+                clean=False,
+                webhook_url=None,
+                allowed_updates=None)
+        except TelegramError:
+            tg_err = True
+        assert tg_err
 
     def test_webhook_no_ssl(self, monkeypatch, updater):
         q = Queue()
