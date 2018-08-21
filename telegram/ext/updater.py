@@ -19,7 +19,6 @@
 """This module contains the class Updater, which tries to make creating Telegram bots intuitive."""
 
 import logging
-import os
 import ssl
 try:
     import asyncio
@@ -27,7 +26,6 @@ except ImportError:
     asyncio = False
 from threading import Thread, Lock, current_thread, Event
 from time import sleep
-import subprocess
 from signal import signal, SIGINT, SIGTERM, SIGABRT
 from queue import Queue
 
@@ -357,10 +355,14 @@ class Updater(object):
         app = WebhookAppClass(url_path, self.bot, self.update_queue)
 
         # Form SSL Context
+        # An SSLError is raised if the private key doesn’t match with the certificate
         ssl_ctx = None
         if use_ssl:
-            ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            ssl_ctx.load_cert_chain(cert, key)
+            try:
+                ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+                ssl_ctx.load_cert_chain(cert, key)
+            except ssl.SSLError:
+                raise TelegramError('SSL Certificate invalid')
 
         # Create and start server
         if asyncio:
@@ -368,8 +370,6 @@ class Updater(object):
         self.httpd = WebhookServer(port, app, ssl_ctx)
 
         if use_ssl:
-            self._check_ssl_cert(cert, key)
-
             # DO NOT CHANGE: Only set webhook if SSL is handled by library
             if not webhook_url:
                 webhook_url = self._gen_webhook_url(listen, port, url_path)
@@ -385,20 +385,6 @@ class Updater(object):
                                 "SSL-termination happens elsewhere; skipping")
 
         self.httpd.serve_forever()
-
-    def _check_ssl_cert(self, cert, key):
-        # Check SSL-Certificate with openssl, if possible
-        try:
-            exit_code = subprocess.call(
-                ["openssl", "x509", "-text", "-noout", "-in", cert],
-                stdout=open(os.devnull, 'wb'),
-                stderr=subprocess.STDOUT)
-        except OSError:
-            exit_code = 0
-        if exit_code is 0:
-            pass
-        else:
-            raise TelegramError('SSL Certificate invalid')
 
     @staticmethod
     def _gen_webhook_url(listen, port, url_path):

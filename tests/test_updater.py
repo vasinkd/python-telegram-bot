@@ -161,10 +161,12 @@ class TestUpdater(object):
             url_path='TOKEN',
             cert='./tests/test_updater.py',
             key='./tests/test_updater.py', )
-        sleep(2)
+        sleep(.2)
         # SSL-Wrapping will fail, so we start the server without SSL
-        thr = Thread(target=updater.httpd.serve_forever)
-        thr.start()
+        updater.start_webhook(
+            ip,
+            port,
+            url_path='TOKEN')
 
         try:
             # Now, we send an update to the server via urlopen
@@ -188,7 +190,8 @@ class TestUpdater(object):
             updater.httpd.shutdown()
         finally:
             updater.httpd.shutdown()
-            thr.join()
+            while updater.httpd._is_running:
+                sleep(0.2)
 
     def test_webhook_no_ssl(self, monkeypatch, updater):
         q = Queue()
