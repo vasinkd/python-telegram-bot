@@ -37,6 +37,7 @@ class WebhookServer(HTTPServer):
     def __init__(self, port, webhook_app, ssl_ctx):
         self.http_server = HTTPServer(webhook_app, ssl_options=ssl_ctx)
         self.port = port
+        self.loop = None
         self.logger = logging.getLogger(__name__)
         self.is_running = False
         self.server_lock = Lock()
@@ -59,6 +60,7 @@ class WebhookServer(HTTPServer):
             else:
                 self.loop.stop()
                 self.is_running = False
+                self.loop = None
 
     def handle_error(self, request, client_address):
         """Handle an error gracefully."""
