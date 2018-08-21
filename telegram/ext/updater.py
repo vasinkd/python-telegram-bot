@@ -355,7 +355,7 @@ class Updater(object):
         app = WebhookAppClass(url_path, self.bot, self.update_queue)
 
         # Form SSL Context
-        # An SSLError is raised if the private key doesn’t match with the certificate
+        # An SSLError is raised if the private key does not match with the certificate
         ssl_ctx = None
         if use_ssl:
             try:
