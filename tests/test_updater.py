@@ -167,7 +167,7 @@ class TestUpdater(object):
             ip,
             port,
             url_path='TOKEN')
-
+        sleep(.2)
         try:
             # Now, we send an update to the server via urlopen
             update = Update(1, message=Message(1, User(1, '', False), None, Chat(1, ''),
