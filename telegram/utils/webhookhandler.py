@@ -31,6 +31,7 @@ import tornado.web
 import tornado.iostream
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+logging.getLogger('tornado.access').disabled = True
 
 
 class WebhookServer(HTTPServer):
