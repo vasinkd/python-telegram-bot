@@ -15,13 +15,13 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 class ApiAppClass(tornado.web.Application):
 
-    def __init__(self, webhook_path, bot, update_queue, api_key):
-        self.shared_objects = {"bot": bot, "update_queue": update_queue,
-                               "api_key": api_key}
+    def __init__(self, webhook_path, bot, update_queue, api_key, request_db):
+        self.shared_api_objects = {"bot": bot, "update_queue": update_queue,
+                                   "api_key": api_key, "request_db": request_db}
         handlers = [
             (r"{0}/?".format(webhook_path), ApiHandler,
-             self.shared_objects)
-            ]
+             self.shared_api_objects)
+            ]  # noqa
         tornado.web.Application.__init__(self, handlers)
 
 
@@ -33,10 +33,11 @@ class ApiHandler(tornado.web.RequestHandler):
         super(ApiHandler, self).__init__(application, request, **kwargs)
         self.logger = logging.getLogger(__name__)
 
-    def initialize(self, bot, update_queue, api_key):
+    def initialize(self, bot, update_queue, api_key, request_db):
         self.bot = bot
         self.update_queue = update_queue
         self.api_key = api_key
+        self.request_db = request_db
 
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
@@ -46,11 +47,11 @@ class ApiHandler(tornado.web.RequestHandler):
         self._validate_post()
         json_string = bytes_to_native_str(self.request.body)
         data = json.loads(json_string)
-        data = {"api_request": data}
+        data = {"api_response": data}
         data["update_id"] = 1
         self.set_status(200)
         self.logger.debug('API received data: ' + json_string)
-        update = Update.de_json(data, self.bot)
+        update = Update.de_json(data, self.bot, self.request_db)
         self.update_queue.put(update)
 
     def _validate_post(self):

@@ -19,7 +19,7 @@
 """This module contains an object that represents a Telegram Update."""
 
 from telegram import (Message, TelegramObject, InlineQuery, ChosenInlineResult,
-                      CallbackQuery, ShippingQuery, PreCheckoutQuery, APIRequest)
+                      CallbackQuery, ShippingQuery, PreCheckoutQuery, APIResponse)
 
 
 class Update(TelegramObject):
@@ -78,7 +78,7 @@ class Update(TelegramObject):
                  callback_query=None,
                  shipping_query=None,
                  pre_checkout_query=None,
-                 api_request=None,
+                 api_response=None,
                  **kwargs):
         # Required
         self.update_id = int(update_id)
@@ -92,7 +92,7 @@ class Update(TelegramObject):
         self.pre_checkout_query = pre_checkout_query
         self.channel_post = channel_post
         self.edited_channel_post = edited_channel_post
-        self.api_request=api_request
+        self.api_response = api_response
 
         self._effective_user = None
         self._effective_chat = None
@@ -126,6 +126,9 @@ class Update(TelegramObject):
 
         elif self.callback_query:
             user = self.callback_query.from_user
+
+        elif self.api_response:
+            user = self.api_response.request.from_user
 
         elif self.shipping_query:
             user = self.shipping_query.from_user
@@ -201,7 +204,7 @@ class Update(TelegramObject):
         return message
 
     @classmethod
-    def de_json(cls, data, bot):
+    def de_json(cls, data, bot, request_db=None):
         if not data:
             return None
 
@@ -217,6 +220,6 @@ class Update(TelegramObject):
         data['pre_checkout_query'] = PreCheckoutQuery.de_json(data.get('pre_checkout_query'), bot)
         data['channel_post'] = Message.de_json(data.get('channel_post'), bot)
         data['edited_channel_post'] = Message.de_json(data.get('edited_channel_post'), bot)
-        data['api_request'] = APIRequest.de_json(data.get('api_request'), bot)
+        data['api_response'] = APIResponse.de_json(data.get('api_response'), bot, request_db)
 
         return cls(**data)

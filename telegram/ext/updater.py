@@ -216,7 +216,8 @@ class Updater(object):
                       webhook_url=None,
                       allowed_updates=None,
                       api_port=None,
-                      api_key=None):
+                      api_key=None,
+                      api_db=None):
         """
         Starts a small http server to listen for updates via webhook. If cert
         and key are not provided, the webhook will be started directly on
@@ -257,8 +258,12 @@ class Updater(object):
                 self.job_queue.start()
                 self._init_thread(self.dispatcher.start, "dispatcher"),
                 self._init_thread(self._start_webhook, "updater", listen, port, url_path, cert,
-                                  key, bootstrap_retries, clean, webhook_url, allowed_updates, api_key)
-                self._init_thread(self._start_api, "apiserver", listen, api_port, api_key)
+                                  key, bootstrap_retries, clean, webhook_url, allowed_updates)
+                if api_port and api_key and api_db:
+                    self._init_thread(self._start_api, "apiserver", listen,
+                                      api_port, api_key, api_db)
+                else:
+                    self.logger.warning("API Server is not started")
 
                 # Return the update queue so the main thread can insert updates
                 return self.update_queue
@@ -350,14 +355,14 @@ class Updater(object):
             current_interval = 30
         return current_interval
 
-    def _start_api(self, listen, api_port, api_key):
-        app = ApiAppClass("/api", self.bot, self.update_queue, api_key)
+    def _start_api(self, listen, api_port, api_key, api_db):
+        app = ApiAppClass("/api", self.bot, self.update_queue, api_key, api_db)
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.httpapi = WebhookServer(api_port, app, None)
         self.httpapi.serve_forever()
 
     def _start_webhook(self, listen, port, url_path, cert, key, bootstrap_retries, clean,
-                       webhook_url, allowed_updates, api_key):
+                       webhook_url, allowed_updates):
         self.logger.debug('Updater thread started (webhook)')
         use_ssl = cert is not None and key is not None
         if not url_path.startswith('/'):
