@@ -143,7 +143,7 @@ class Dispatcher(object):
 
         """
         if cls.__singleton is not None:
-            return cls.__singleton()
+            return cls.__singleton
         else:
             raise RuntimeError('{} not initialized or multiple instances exist'.format(
                 cls.__name__))
