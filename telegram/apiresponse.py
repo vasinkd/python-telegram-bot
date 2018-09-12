@@ -1,6 +1,6 @@
 """This module contains an object that represents a API Response"""
 from telegram import TelegramObject
-from telegram import APIRequest
+from .apirequest import APIRequest
 
 
 class APIResponse(TelegramObject):
