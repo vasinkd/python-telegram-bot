@@ -27,7 +27,6 @@ class APIHandler(Handler):
 
     def __init__(self,
                  callback,
-                 uuid_dict,
                  pass_update_queue=False,
                  pass_job_queue=False,
                  pass_user_data=False,
@@ -38,7 +37,6 @@ class APIHandler(Handler):
             pass_job_queue=pass_job_queue,
             pass_user_data=pass_user_data,
             pass_chat_data=pass_chat_data)
-        self.uuid_dict = uuid_dict
 
     def check_update(self, update):
         """Determines whether an update should be passed to this handlers :attr:`callback`.
