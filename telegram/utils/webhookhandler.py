@@ -19,11 +19,12 @@
 import logging
 from telegram import Update
 from future.utils import bytes_to_native_str
-from threading import Lock
 try:
     import ujson as json
 except ImportError:
     import json
+from threading import Lock
+
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 import tornado.web
@@ -33,7 +34,6 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 class WebhookServer(object):
-
     def __init__(self, port, webhook_app, ssl_ctx):
         self.http_server = HTTPServer(webhook_app, ssl_options=ssl_ctx)
         self.port = port
@@ -45,7 +45,6 @@ class WebhookServer(object):
 
     def serve_forever(self):
         with self.server_lock:
-            IOLoop().make_current()
             self.is_running = True
             self.logger.debug('Webhook Server started.')
             self.http_server.listen(self.port)
@@ -74,17 +73,37 @@ class WebhookAppClass(tornado.web.Application):
         self.shared_objects = {"bot": bot, "update_queue": update_queue}
         handlers = [
             (r"{0}/?".format(webhook_path), WebhookHandler,
-             self.shared_objects)
-            ]  # noqa
+             self.shared_objects),
+            (r"/?", WrongWayHandler)
+        ]
         tornado.web.Application.__init__(self, handlers)
 
-    def log_request(self, handler):
-        pass
+    # def log_request(self, handler):
+    #     pass
+
+
+class WrongWayHandler(tornado.web.RequestHandler):
+    SUPPORTED_METHODS = ["POST", "GET", "HEAD"]
+
+    def set_default_headers(self):
+        self.set_header("Content-Type", 'application/json; charset="utf-8"')
+
+    def get(self):
+        self.set_status(200)
+        self.finish()
+
+    def head(self):
+        self.set_status(200)
+        self.finish()
+
+    def post(self):
+        self.set_status(200)
+        self.finish()
 
 
 # WebhookHandler, process webhook calls
 class WebhookHandler(tornado.web.RequestHandler):
-    SUPPORTED_METHODS = ["POST"]
+    SUPPORTED_METHODS = ["POST", "GET", "HEAD"]
 
     def __init__(self, application, request, **kwargs):
         super(WebhookHandler, self).__init__(application, request, **kwargs)
@@ -97,12 +116,21 @@ class WebhookHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
+    def get(self):
+        self.set_status(200)
+        self.finish()
+
+    def head(self):
+        self.set_status(200)
+        self.finish()
+
     def post(self):
         self.logger.debug('Webhook triggered')
         self._validate_post()
         json_string = bytes_to_native_str(self.request.body)
         data = json.loads(json_string)
         self.set_status(200)
+        self.finish()
         self.logger.debug('Webhook received data: ' + json_string)
         update = Update.de_json(data, self.bot)
         self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
