@@ -33,7 +33,7 @@ import tornado.iostream
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
-class WebhookServer(HTTPServer):
+class WebhookServer(object):
     def __init__(self, port, webhook_app, ssl_ctx):
         self.http_server = HTTPServer(webhook_app, ssl_options=ssl_ctx)
         self.port = port
@@ -63,8 +63,8 @@ class WebhookServer(HTTPServer):
 
     def handle_error(self, request, client_address):
         """Handle an error gracefully."""
-        self.logger.info('Exception happened during processing of request from %s',
-                         client_address, exc_info=True)
+        self.logger.debug('Exception happened during processing of request from %s',
+                          client_address, exc_info=True)
 
 
 class WebhookAppClass(tornado.web.Application):
@@ -83,7 +83,7 @@ class WebhookAppClass(tornado.web.Application):
 
 # WebhookHandler, process webhook calls
 class WebhookHandler(tornado.web.RequestHandler):
-    SUPPORTED_METHODS = ["POST"]
+    SUPPORTED_METHODS = ["POST", "GET"]
 
     def __init__(self, application, request, **kwargs):
         super(WebhookHandler, self).__init__(application, request, **kwargs)
@@ -95,6 +95,9 @@ class WebhookHandler(tornado.web.RequestHandler):
 
     def set_default_headers(self):
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
+
+    def get(self):
+        self.set_status(200)
 
     def post(self):
         self.logger.debug('Webhook triggered')
