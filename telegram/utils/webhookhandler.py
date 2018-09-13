@@ -73,12 +73,29 @@ class WebhookAppClass(tornado.web.Application):
         self.shared_objects = {"bot": bot, "update_queue": update_queue}
         handlers = [
             (r"{0}/?".format(webhook_path), WebhookHandler,
-             self.shared_objects)
+             self.shared_objects,
+             r"?", WrongWayHandler)
         ]
         tornado.web.Application.__init__(self, handlers)
 
-    # def log_request(self, handler):
-    #     pass
+    def log_request(self, handler):
+        pass
+
+
+class WrongWayHandler(tornado.web.RequestHandler):
+    SUPPORTED_METHODS = ["POST", "GET", "HEAD"]
+
+    def get(self):
+        self.set_status(200)
+        self.finish()
+
+    def head(self):
+        self.set_status(200)
+        self.finish()
+
+    def post(self):
+        self.set_status(200)
+        self.finish()
 
 
 # WebhookHandler, process webhook calls
