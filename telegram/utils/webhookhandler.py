@@ -98,9 +98,11 @@ class WebhookHandler(tornado.web.RequestHandler):
 
     def get(self):
         self.set_status(200)
+        self.finish()
 
     def head(self):
         self.set_status(200)
+        self.finish()
 
     def post(self):
         self.logger.debug('Webhook triggered')
@@ -108,6 +110,7 @@ class WebhookHandler(tornado.web.RequestHandler):
         json_string = bytes_to_native_str(self.request.body)
         data = json.loads(json_string)
         self.set_status(200)
+        self.finish()
         self.logger.debug('Webhook received data: ' + json_string)
         update = Update.de_json(data, self.bot)
         self.logger.debug('Received Update with ID %d on Webhook' % update.update_id)
