@@ -74,16 +74,19 @@ class WebhookAppClass(tornado.web.Application):
         handlers = [
             (r"{0}/?".format(webhook_path), WebhookHandler,
              self.shared_objects,
-             r"?", WrongWayHandler)
+             r"/?", WrongWayHandler)
         ]
         tornado.web.Application.__init__(self, handlers)
 
-    def log_request(self, handler):
-        pass
+    # def log_request(self, handler):
+    #     pass
 
 
 class WrongWayHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ["POST", "GET", "HEAD"]
+
+    def set_default_headers(self):
+        self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
     def get(self):
         self.set_status(200)
