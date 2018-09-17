@@ -306,7 +306,7 @@ def queuedmessage(method):
         isgroup = kwargs.pop('isgroup', False)
         if queued:
             prom = promise.Promise(method, (self, ) + args, kwargs)
-            return self._msg_queue(prom, isgroup)
+            return self._msg_queue(prom, isgroup).result()
         return method(self, *args, **kwargs)
 
     return wrapped
