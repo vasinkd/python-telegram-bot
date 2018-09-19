@@ -49,7 +49,7 @@ class APIHandler(Handler):
 
         """
         return (isinstance(update, Update) and
-                update.api_request)
+                update.api_response)
 
     def handle_update(self, update, dispatcher):
         """Send the update to the :attr:`callback`.
