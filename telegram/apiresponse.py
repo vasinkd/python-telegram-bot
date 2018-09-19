@@ -28,9 +28,6 @@ class APIResponse(TelegramObject):
             return None
 
         response = super(APIResponse, cls).de_json(data, bot)
-        print("uuid" in response)
-        print(response["uuid"])
-        print(request_db.get(response["uuid"]))
 
         if ("uuid" in response) and response["uuid"]:
             request_data = request_db.get(response["uuid"])
