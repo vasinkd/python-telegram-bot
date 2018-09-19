@@ -162,6 +162,9 @@ class Update(TelegramObject):
         elif self.callback_query and self.callback_query.message:
             chat = self.callback_query.message.chat
 
+        elif self.api_response:
+            chat = self.api_response.request.chat
+
         elif self.channel_post:
             chat = self.channel_post.chat
 

@@ -48,9 +48,6 @@ class APIHandler(Handler):
             :obj:`bool`
 
         """
-        print("In check update")
-        print(isinstance(update, Update))
-        print(update.api_response)
         return (isinstance(update, Update) and
                 update.api_response)
 
