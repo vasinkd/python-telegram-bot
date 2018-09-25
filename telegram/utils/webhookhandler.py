@@ -28,8 +28,10 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 import tornado.web
 import tornado.iostream
+from tornado.log import gen_log
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+gen_log.disabled = True
 
 
 class WebhookServer(object):
