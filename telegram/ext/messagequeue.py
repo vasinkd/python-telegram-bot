@@ -313,7 +313,7 @@ def queuedmessage(method):
                 ready = prom.done.wait(timeout=0.5)
                 if prom._exception is not None:
                     raise prom._exception  # pylint: disable=raising-bad-type
-            return prom.result()
+            return prom._result
         return method(self, *args, **kwargs)
 
     return wrapped
