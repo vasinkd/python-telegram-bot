@@ -306,8 +306,14 @@ def queuedmessage(method):
         isgroup = kwargs.pop('isgroup', False)
         if queued:
             prom = promise.Promise(method, (self, ) + args, kwargs)
-            res = self._msg_queue(prom, isgroup)
-            return res.result(timeout=5)
+            prom.raise_exc = False
+            self._msg_queue(prom, isgroup)
+            ready = False
+            while not ready:
+                ready = prom.done.wait(timeout=0.5)
+                if prom._exception is not None:
+                    raise prom._exception  # pylint: disable=raising-bad-type
+            return prom.result()
         return method(self, *args, **kwargs)
 
     return wrapped
