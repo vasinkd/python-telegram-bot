@@ -119,6 +119,10 @@ class ConversationHandler(Handler):
 
     """
     END = -1
+    info_1 = False
+    info_2 = False
+    info_3 = False
+    info_4 = False
     """:obj:`int`: Used as a constant to return when a conversation is ended."""
 
     def __init__(self,
@@ -156,8 +160,10 @@ class ConversationHandler(Handler):
             raise ValueError("'per_user', 'per_chat' and 'per_message' can't all be 'False'")
 
         if self.per_message and not self.per_chat:
-            logging.debug("If 'per_message=True' is used, 'per_chat=True' should also be used, "
-                          "since message IDs are not globally unique.")
+            if not ConversationHandler.info_1:
+                ConversationHandler.info_1 = True
+                logging.warning("If 'per_message=True' is used, 'per_chat=True' should also"
+                                " be used, since message IDs are not globally unique.")
 
         all_handlers = list()
         all_handlers.extend(entry_points)
@@ -169,20 +175,27 @@ class ConversationHandler(Handler):
         if self.per_message:
             for handler in all_handlers:
                 if not isinstance(handler, CallbackQueryHandler):
-                    logging.debug("If 'per_message=True', all entry points and state handlers"
-                                  " must be 'CallbackQueryHandler', since no other handlers "
-                                  "have a message context.")
+                    if not ConversationHandler.info_2:
+                        ConversationHandler.info_2 = True
+                        logging.warning(
+                            "If 'per_message=True', all entry points and state handlers"
+                            " must be 'CallbackQueryHandler', since no other handlers"
+                            " have a message context.")
         else:
             for handler in all_handlers:
                 if isinstance(handler, CallbackQueryHandler):
-                    logging.debug("If 'per_message=False', 'CallbackQueryHandler' will not be "
-                                  "tracked for every message.")
+                    if not ConversationHandler.info_3:
+                        ConversationHandler.info_3 = True
+                        logging.warning("If 'per_message=False', 'CallbackQueryHandler' will not"
+                                        " be tracked for every message.")
 
         if self.per_chat:
             for handler in all_handlers:
                 if isinstance(handler, (InlineQueryHandler, ChosenInlineResultHandler)):
-                    logging.debug("If 'per_chat=True', 'InlineQueryHandler' can not be used, "
-                                  "since inline queries have no chat context.")
+                    if not ConversationHandler.info_4:
+                        ConversationHandler.info_4 = True
+                        logging.warning("If 'per_chat=True', 'InlineQueryHandler' can not be"
+                                        " used, since inline queries have no chat context.")
 
     def _get_key(self, update):
         chat = update.effective_chat
