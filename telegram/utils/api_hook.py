@@ -22,7 +22,8 @@ class ApiAppClass(tornado.web.Application):
             (r"{}/?".format(webhook_path), ApiHandler,
              self.shared_api_objects),
             (r"/msg_api/?", MessageHandler,
-             {"bot": bot, "allowed_receivers": [220508548]})
+             {"bot": bot, "allowed_receivers": [220508548],
+              "api_key": api_key})
             ]  # noqa
         tornado.web.Application.__init__(self, handlers)
 
@@ -86,9 +87,10 @@ class ApiHandler(tornado.web.RequestHandler):
 class MessageHandler(ApiHandler):
     SUPPORTED_METHODS = ["POST"]
 
-    def initialize(self, bot, allowed_receivers):
+    def initialize(self, bot, allowed_receivers, api_key):
         self.bot = bot
         self.allowed_receivers = allowed_receivers
+        self.api_key = api_key
 
     def post(self):
         self.logger.debug('Message API triggered')
