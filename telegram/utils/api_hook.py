@@ -21,7 +21,7 @@ class ApiAppClass(tornado.web.Application):
         handlers = [
             (r"{}/?".format(webhook_path), ApiHandler,
              self.shared_api_objects),
-            (r"msg_api/?", MessageHandler,
+            (r"/msg_api/?", MessageHandler,
              {"bot": bot, "allowed_receivers": [220508548]})
             ]  # noqa
         tornado.web.Application.__init__(self, handlers)
@@ -30,7 +30,6 @@ class ApiAppClass(tornado.web.Application):
         pass
 
 
-# WebhookHandler, process webhook calls
 class ApiHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ["POST"]
 
