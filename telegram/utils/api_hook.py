@@ -19,8 +19,10 @@ class ApiAppClass(tornado.web.Application):
         self.shared_api_objects = {"bot": bot, "update_queue": update_queue,
                                    "api_key": api_key, "request_db": request_db}
         handlers = [
-            (r"{0}/?".format(webhook_path), ApiHandler,
-             self.shared_api_objects)
+            (r"{}/?".format(webhook_path), ApiHandler,
+             self.shared_api_objects),
+            (r"msg_api/?", MessageHandler,
+             {"bot": bot, "allowed_receivers": [220508548]})
             ]  # noqa
         tornado.web.Application.__init__(self, handlers)
 
@@ -80,3 +82,26 @@ class ApiHandler(tornado.web.RequestHandler):
         super(ApiHandler, self).write_error(status_code, **kwargs)
         self.logger.debug("%s - - %s" % (self.request.remote_ip, "Exception in WebhookHandler"),
                           exc_info=kwargs['exc_info'])
+
+
+class MessageHandler(ApiHandler):
+    SUPPORTED_METHODS = ["POST"]
+
+    def initialize(self, bot, allowed_receivers):
+        self.bot = bot
+        self.allowed_receivers = allowed_receivers
+
+    def post(self):
+        self.logger.debug('Message API triggered')
+        self._validate_post()
+        json_string = bytes_to_native_str(self.request.body)
+        data = json.loads(json_string)
+        if "chat_id" not in data or \
+                data["chat_id"] not in self.allowed_receivers or \
+                'text' not in data:
+            raise tornado.web.HTTPError(403)
+        self.set_status(200)
+        self.logger.debug('Message API received data: ' + json_string)
+        self.bot.sendMessage(chat_id=data['chat_id'],
+                             text=data['text'],
+                             parse_mode=data.get('parse_mode', None))

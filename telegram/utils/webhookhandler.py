@@ -76,7 +76,7 @@ class WebhookAppClass(tornado.web.Application):
     def __init__(self, webhook_path, bot, update_queue):
         self.shared_objects = {"bot": bot, "update_queue": update_queue}
         handlers = [
-            (r"{0}/?".format(webhook_path), WebhookHandler,
+            (r"{}/?".format(webhook_path), WebhookHandler,
              self.shared_objects)
             ]  # noqa
         tornado.web.Application.__init__(self, handlers)
