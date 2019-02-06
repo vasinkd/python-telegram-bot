@@ -217,7 +217,8 @@ class Updater(object):
                       allowed_updates=None,
                       api_port=None,
                       api_key=None,
-                      api_db=None):
+                      api_db=None,
+                      msg_ipc_receivers=None):
         """
         Starts a small http server to listen for updates via webhook. If cert
         and key are not provided, the webhook will be started directly on
@@ -259,9 +260,10 @@ class Updater(object):
                 self._init_thread(self.dispatcher.start, "dispatcher"),
                 self._init_thread(self._start_webhook, "updater", listen, port, url_path, cert,
                                   key, bootstrap_retries, clean, webhook_url, allowed_updates)
-                if api_port and api_key and api_db:
+                if api_port and api_key and api_db and msg_ipc_receivers:
                     self._init_thread(self._start_api, "apiserver", listen,
-                                      api_port, api_key, api_db)
+                                      api_port, api_key, api_db,
+                                      msg_ipc_receivers)
                 else:
                     self.logger.warning("API Server is not started")
 
@@ -355,8 +357,9 @@ class Updater(object):
             current_interval = 30
         return current_interval
 
-    def _start_api(self, listen, api_port, api_key, api_db):
-        app = ApiAppClass("/api", self.bot, self.update_queue, api_key, api_db)
+    def _start_api(self, listen, api_port, api_key, api_db, msg_ipc_receivers):
+        app = ApiAppClass("/api", self.bot, self.update_queue, api_key, api_db,
+                          msg_ipc_receivers)
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.httpapi = WebhookServer(api_port, app, None)
         self.httpapi.serve_forever()

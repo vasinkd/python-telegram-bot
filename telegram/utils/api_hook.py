@@ -15,15 +15,17 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 class ApiAppClass(tornado.web.Application):
 
-    def __init__(self, webhook_path, bot, update_queue, api_key, request_db):
-        self.shared_api_objects = {"bot": bot, "update_queue": update_queue,
-                                   "api_key": api_key, "request_db": request_db}
+    def __init__(self, webhook_path, bot, update_queue,
+                 api_key, request_db, msg_ipc_receivers):
+        shared_api_objects = {"bot": bot, "update_queue": update_queue,
+                              "api_key": api_key, "request_db": request_db,
+                              "msg_ipc_receivers": msg_ipc_receivers}
+
         handlers = [
             (r"{}/?".format(webhook_path), ApiHandler,
-             self.shared_api_objects),
+             shared_api_objects),
             (r"/msg_api/?", MessageHandler,
-             {"bot": bot, "allowed_receivers": [220508548],
-              "api_key": api_key})
+             shared_api_objects)
             ]  # noqa
         tornado.web.Application.__init__(self, handlers)
 
@@ -38,7 +40,8 @@ class ApiHandler(tornado.web.RequestHandler):
         super(ApiHandler, self).__init__(application, request, **kwargs)
         self.logger = logging.getLogger(__name__)
 
-    def initialize(self, bot, update_queue, api_key, request_db):
+    def initialize(self, bot, update_queue, api_key, request_db,
+                   msg_ipc_receivers):
         self.bot = bot
         self.update_queue = update_queue
         self.api_key = api_key
@@ -87,9 +90,10 @@ class ApiHandler(tornado.web.RequestHandler):
 class MessageHandler(ApiHandler):
     SUPPORTED_METHODS = ["POST"]
 
-    def initialize(self, bot, allowed_receivers, api_key):
+    def initialize(self, bot, update_queue, api_key, request_db,
+                   msg_ipc_receivers):
         self.bot = bot
-        self.allowed_receivers = allowed_receivers
+        self.allowed_receivers = msg_ipc_receivers
         self.api_key = api_key
 
     def post(self):
